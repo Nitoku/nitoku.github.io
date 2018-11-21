@@ -25,47 +25,47 @@ Actions.prototype.init = function()
 	};
 
 	// File actions
-	this.addAction('new...', function() { graph.openLink(ui.getUrl()); });
-	this.addAction('open...', function()
-	{
-		window.openNew = true;
-		window.openKey = 'open';
-		
-		ui.openFile();
-	});
-	this.addAction('import...', function()
-	{
-		window.openNew = false;
-		window.openKey = 'import';
-		
-		// Closes dialog after open
-		window.openFile = new OpenFile(mxUtils.bind(this, function()
-		{
-			ui.hideDialog();
-		}));
-		
-		window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
-		{
-			try
-			{
-				var doc = mxUtils.parseXml(xml);
-				editor.graph.setSelectionCells(editor.graph.importGraphModel(doc.documentElement));
-			}
-			catch (e)
-			{
-				mxUtils.alert(mxResources.get('invalidOrMissingFile') + ': ' + e.message);
-			}
-		}));
-
-		// Removes openFile if dialog is closed
-		ui.showDialog(new OpenDialog(this).container, 320, 220, true, true, function()
-		{
-			window.openFile = null;
-		});
-	}).isEnabled = isGraphEnabled;
-	this.addAction('save', function() { ui.saveFile(false); }, null, null, Editor.ctrlKey + '+S').isEnabled = isGraphEnabled;
-	this.addAction('saveAs...', function() { ui.saveFile(true); }, null, null, Editor.ctrlKey + '+Shift+S').isEnabled = isGraphEnabled;
-	this.addAction('export...', function() { ui.showDialog(new ExportDialog(ui).container, 300, 230, true, true); });
+//	this.addAction('new...', function() { graph.openLink(ui.getUrl()); });
+//	this.addAction('open...', function()
+//	{
+//		window.openNew = true;
+//		window.openKey = 'open';
+//		
+//		ui.openFile();
+//	});
+//	this.addAction('import...', function()
+//	{
+//		window.openNew = false;
+//		window.openKey = 'import';
+//		
+//		// Closes dialog after open
+//		window.openFile = new OpenFile(mxUtils.bind(this, function()
+//		{
+//			ui.hideDialog();
+//		}));
+//		
+//		window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
+//		{
+//			try
+//			{
+//				var doc = mxUtils.parseXml(xml);
+//				editor.graph.setSelectionCells(editor.graph.importGraphModel(doc.documentElement));
+//			}
+//			catch (e)
+//			{
+//				mxUtils.alert(mxResources.get('invalidOrMissingFile') + ': ' + e.message);
+//			}
+//		}));
+//
+//		// Removes openFile if dialog is closed
+//		ui.showDialog(new OpenDialog(this).container, 320, 220, true, true, function()
+//		{
+//			window.openFile = null;
+//		});
+//	}).isEnabled = isGraphEnabled;
+	//this.addAction('save', function() { ui.saveFile(false); }, null, null, Editor.ctrlKey + '+S').isEnabled = isGraphEnabled;
+	//this.addAction('saveAs...', function() { ui.saveFile(true); }, null, null, Editor.ctrlKey + '+Shift+S').isEnabled = isGraphEnabled;
+	//this.addAction('export...', function() { ui.showDialog(new ExportDialog(ui).container, 300, 230, true, true); });
 	this.addAction('editDiagram...', function()
 	{
 		var dlg = new EditDiagramDialog(ui);
@@ -75,6 +75,7 @@ Actions.prototype.init = function()
 	this.addAction('pageSetup...', function() { ui.showDialog(new PageSetupDialog(ui).container, 320, 220, true, true); }).isEnabled = isGraphEnabled;
 	this.addAction('print...', function() { ui.showDialog(new PrintDialog(ui).container, 300, 180, true, true); }, null, 'sprite-print', Editor.ctrlKey + '+P');
 	this.addAction('preview', function() { mxUtils.show(graph, null, 10, 10); });
+	this.addAction('close', function() { console.log("close from menu") });
 	
 	// Edit actions
 	this.addAction('undo', function() { ui.undo(); }, null, 'sprite-undo', Editor.ctrlKey + '+Z');
@@ -788,17 +789,17 @@ Actions.prototype.init = function()
 	action.visible = false;
 	
 	// Help actions
-	this.addAction('help', function()
-	{
-		var ext = '';
-		
-		if (mxResources.isLanguageSupported(mxClient.language))
-		{
-			ext = '_' + mxClient.language;
-		}
-		
-		graph.openLink(RESOURCES_PATH + '/help' + ext + '.html');
-	});
+//	this.addAction('help', function()
+//	{
+//		var ext = '';
+//		
+//		if (mxResources.isLanguageSupported(mxClient.language))
+//		{
+//			ext = '_' + mxClient.language;
+//		}
+//		
+//		graph.openLink(RESOURCES_PATH + '/help' + ext + '.html');
+//	});
 	
 	var showingAbout = false;
 	

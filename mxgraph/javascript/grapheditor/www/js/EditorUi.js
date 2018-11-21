@@ -4056,7 +4056,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	keyHandler.bindKey(35, function() { graph.refresh(); }); // End
 	keyHandler.bindAction(107, true, 'zoomIn'); // Ctrl+Plus
 	keyHandler.bindAction(109, true, 'zoomOut'); // Ctrl+Minus
-	keyHandler.bindAction(80, true, 'print'); // Ctrl+P
+	//keyHandler.bindAction(80, true, 'print'); // Ctrl+P
 	keyHandler.bindAction(79, true, 'outline', true); // Ctrl+Shift+O
 	keyHandler.bindAction(112, false, 'about'); // F1
 
@@ -4076,8 +4076,8 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindAction(48, true, 'customZoom'); // Ctrl+0
 		keyHandler.bindAction(82, true, 'turn'); // Ctrl+R
 		keyHandler.bindAction(82, true, 'clearDefaultStyle', true); // Ctrl+Shift+R
-		keyHandler.bindAction(83, true, 'save'); // Ctrl+S
-		keyHandler.bindAction(83, true, 'saveAs', true); // Ctrl+Shift+S
+		//keyHandler.bindAction(83, true, 'save'); // Ctrl+S
+		//keyHandler.bindAction(83, true, 'saveAs', true); // Ctrl+Shift+S
 		keyHandler.bindAction(65, true, 'selectAll'); // Ctrl+A
 		keyHandler.bindAction(65, true, 'selectNone', true); // Ctrl+A
 		keyHandler.bindAction(73, true, 'selectVertices', true); // Ctrl+Shift+I
