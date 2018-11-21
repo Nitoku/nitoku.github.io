@@ -16,7 +16,7 @@
 
 	<property name="source.home"    value="${basedir}/src"/>
 	<property name="example.home"   value="${basedir}/examples"/>
-	<property name="grapheditor.home" value="${basedir}/../javascript/examples/grapheditor/java/src"/>
+	<property name="grapheditor.home" value="${basedir}/../javascript/grapheditor/java/src"/>
 	<property name="test.home"      value="${basedir}/test"/>
 
 <!-- ==================== Compilation Options ==================== -->
