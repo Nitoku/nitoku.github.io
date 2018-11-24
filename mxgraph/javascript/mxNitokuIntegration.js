@@ -1,36 +1,80 @@
 
 var mxNitokuIntegrationXml = ""; 
+var mxNitokuIntegrationTmpXml = "";
+
 var mxNitokuEditorUi;
+var mxNitokuDevFlag = true;
+
 var mxNitokuIntegration = {
 	
 	init: function()
 	{
 		
-	   window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
-			   												+ 620 + "'}","https://www.nitoku.com");
-	   window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-data'}",
+	   //window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+	   //		   												+ 400 + "'}","https://www.nitoku.com");
+	   if(!mxNitokuDevFlag){
+		   window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-data'}",
     		   															 "https://www.nitoku.com");
-       
+	   }else{
+		   window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-data'}",
+				 "*");
+	   }
+	   
 	   // Default resources are included in grapheditor resources
 	   mxLoadResources = false;
 
 	   if (screenfull.enabled) {
+		   
 			screenfull.on('change', () => {
+				
 				if(!screenfull.isFullscreen){
-					mxNitokuIntegrationXml = 
-								mxNitokuEditorUi.editor.getGraphXml().outerHTML;
-					//console.log("xml new");
-					//console.log(mxNitokuIntegrationXml);
+					
+					mxNitokuIntegrationTmpXml = 
+							mxNitokuEditorUi.editor.getGraphXml().outerHTML;
+					
+					if(mxNitokuIntegrationXml === mxNitokuIntegrationTmpXml){
+						
+						//make sure that the editor is not blocking reload
+						mxNitokuEditorUi.editor.modified = false;
+						
+					}else{
+					
+						//mxNitokuIntegrationXml = 
+						//	mxNitokuEditorUi.editor.getGraphXml().outerHTML;
+						if(!mxNitokuDevFlag){
+							parent.postMessage(
+								    "{'service':'@nitoku.public/blockApi','request':'set-data : "+ 
+								    mxNitokuIntegrationTmpXml+"'}",
+								    "https://www.nitoku.com"
+							);
+						}else{
+							parent.postMessage(
+								    "{'service':'@nitoku.public/blockApi','request':'set-data : "+ 
+								    mxNitokuIntegrationTmpXml+"'}",
+								    "*"
+							);
+						}
+
+						//make sure that the editor is not blocking reload
+						mxNitokuEditorUi.editor.modified = false;
+
+						
+					}
+					
 					this.initGraph();
+					
 				}
+				
 			});
 	   }
 	   
 	   window.addEventListener('message', function (e) {
 	          
-		    if (e.origin !== ("https://www.nitoku.com")){
-		        console.warn("error on frame origin");
-		        return;
+		    if(!mxNitokuDevFlag){
+			    if (e.origin !== ("https://www.nitoku.com")){
+			        console.warn("error on frame origin");
+			        return;
+			    }
 		    }
 		        
 		    if(e.data != null) {
@@ -50,10 +94,19 @@ var mxNitokuIntegration = {
 		        		jdata.response.id === "data-update"){
 		            
 		        	mxNitokuIntegrationXml = jdata.response.data;
-		        	//console.log(this.xml);
+		        	console.log(mxNitokuIntegrationXml);
 		        	mxNitokuIntegration.initGraph();
+		        	
 		        }
 
+		        if(jdata.response.id === "set-data" && 
+		        		jdata.response.data === "accepted"){
+		            //console.log("accepted change");
+		        	mxNitokuIntegrationXml = mxNitokuIntegrationTmpXml;
+		        	//console.log(mxNitokuIntegrationXml);
+		        	mxNitokuIntegration.initGraph();
+		        	
+		        }
 		        
 		  	}
 	          
@@ -153,17 +206,8 @@ var mxNitokuIntegration = {
 	   //editor.hide();
 		
        // collection
-       $('#mxgraph').on('click', () => {
-    	   if (screenfull.enabled) {
-				if(!screenfull.isFullscreen){
-					this.initEditor();
-					screenfull.request();
-				}//else{
-				//	screenfull.exit();
-				//	this.initGraph();
-				//}
-			}
-		});
+       //$('#mxgraph').on('click', () => {
+  	   //});
 	       
 		var container = document.getElementById('mxgraph');
 	       
@@ -189,9 +233,9 @@ var mxNitokuIntegration = {
 				container.innerHTML = '';
 
 				var graph = new mxGraph(container);
-				graph.centerZoom = false;
+				graph.centerZoom = true;
 				graph.setTooltips(true);
-				graph.setEnabled(true);
+				graph.setEnabled(false);
 				graph.htmlLabels = true;
 
 				// Changes the default style for edges "in-place"
@@ -202,7 +246,7 @@ var mxNitokuIntegration = {
 				graph.panningHandler.useLeftButtonForPanning = true;
 				graph.panningHandler.ignoreCell = true;
 				graph.container.style.cursor = 'move';
-				graph.setPanning(true);
+				//graph.setPanning(false);
 				
 				// Do not allow removing labels from parents
 				graph.graphHandler.removeCellsFromParent = false;
@@ -211,18 +255,35 @@ var mxNitokuIntegration = {
 				decoder.decode(node, graph.getModel());
 				//graph.resizeContainer = false;
 				
+				//request new height for the block
+				var height = container.offsetHeight + 20;
+				//If the width is larger than the available width we need to zoom in by the required
+				//factor and then request the height to the blockApi service
+				
+				if(!mxNitokuDevFlag){
+					window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+						   							+ height + "'}","https://www.nitoku.com");
+				}else{
+					window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+   							+ height + "'}","*");
+				}
+				
 				// Adds zoom buttons in top, left corner
 				var buttons = document.createElement('div');
 				buttons.style.position = 'absolute';
 				buttons.style.overflow = 'visible';
-
+				buttons.style.display = 'flex';
+				buttons.style.width = '100%';
+				buttons.style.justifyContent = 'center';
+				
 				var bs = graph.getBorderSizes();
+				
 				buttons.style.top = (container.offsetTop + bs.y) + 'px';
-				buttons.style.left = (container.offsetLeft + bs.x) + 'px';
+				//buttons.style.left = (container.offsetLeft + bs.x) + 'px';
 				
 				var left = 0;
-				var bw = 16;
-				var bh = 16;
+				var bw = 26;
+				var bh = 26;
 				
 				if (mxClient.IS_QUIRKS)
 				{
@@ -234,7 +295,7 @@ var mxNitokuIntegration = {
 				{
 					var btn = document.createElement('div');
 					mxUtils.write(btn, label);
-					btn.style.position = 'absolute';
+					//btn.style.position = 'absolute';
 					btn.style.backgroundColor = 'transparent';
 					btn.style.border = '1px solid gray';
 					btn.style.textAlign = 'center';
@@ -242,8 +303,8 @@ var mxNitokuIntegration = {
 					btn.style.cursor = 'hand';
 					btn.style.width = bw + 'px';
 					btn.style.height = bh + 'px';
-					btn.style.left = left + 'px';
-					btn.style.top = '0px';
+					//btn.style.left = left + 'px';
+					//btn.style.top = '0px';
 					
 					mxEvent.addListener(btn, 'click', function(evt)
 					{
@@ -259,13 +320,39 @@ var mxNitokuIntegration = {
 				addButton('+', function()
 				{
 					graph.zoomIn();
+					var height = container.offsetHeight + 20;
+					if(!mxNitokuDevFlag){
+						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+   							+ height + "'}","https://www.nitoku.com");
+					}else{
+						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+	   							+ height + "'}","*");
+					}
 				});
 				
 				addButton('-', function()
 				{
 					graph.zoomOut();
+					var height = container.offsetHeight + 20;
+					if(!mxNitokuDevFlag){
+						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+   							+ height + "'}","https://www.nitoku.com");
+					}else{
+						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+	   							+ height + "'}","*");
+					}
 				});
-				
+
+				addButton('Edit', function()
+				{
+			    	if (screenfull.enabled) {
+			    		if(!screenfull.isFullscreen){
+							mxNitokuIntegration.initEditor();
+							screenfull.request();
+						}
+					}
+				});
+
 				if (container.nextSibling != null)
 				{
 					container.parentNode.insertBefore(buttons, container.nextSibling);
