@@ -1,11 +1,87 @@
+.nitoku-icon {
+	
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-weight: 400;
+    text-align: center;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    border-width: 2px;
+    border-color: #c6e8db;
+    cursor: pointer;
+    color: #1b9866;
+    width: 26px;
+    height: 26px;
+    border-radius: 15px;
+    font-size: 16px;
+    border-style: solid;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.icon-label{
+	
+	font-size: 14px;
+    text-align: center;
+    color: #676a6c;
+    
+}
+
+.blockZoomButtonsWrapper {
+	
+	position : absolute;
+	display : none;
+	width : 100%;
+	justify-content : center;
+	
+}
+
+.blockEditButtonsWrapper {
+
+	position : absolute;
+	display : flex;
+	width : 100%;
+	justify-content : flex-end;
+	padding-right: 50px;
+	font-size: 16px;
+}
+
+.blockZoomButtons {
+	
+	background-color : transparent;
+	text-align : center;
+	cursor : pointer;
+	z-index: 100;
+	padding-left: 20px;
+	    
+}
+
+.blockEditButtons {
+
+	background-color : transparent;
+	text-align : center;
+	cursor : pointer;
+	    
+}
+
 .geEditor {
+	
 	font-family:Helvetica Neue,Helvetica,Arial Unicode MS,Arial;
 	font-size:10pt;
 	border:none;
 	margin:0px;
 	display: flex;
     justify-content: center;
+    
 }
+
+.geEditor:hover > .blockZoomButtonsWrapper {
+	display : flex;
+}
+
+
 .geEditor input[type=text]::-ms-clear {
 	display: none;
 }

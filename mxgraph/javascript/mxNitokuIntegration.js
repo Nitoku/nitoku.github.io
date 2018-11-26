@@ -32,7 +32,8 @@ var mxNitokuIntegration = {
 					mxNitokuIntegrationTmpXml = 
 							mxNitokuEditorUi.editor.getGraphXml().outerHTML;
 					
-					if(mxNitokuIntegrationXml === mxNitokuIntegrationTmpXml){
+					if(mxNitokuIntegrationXml.trim()
+								.localeCompare(mxNitokuIntegrationTmpXml.trim()) === 0){
 						
 						//make sure that the editor is not blocking reload
 						mxNitokuEditorUi.editor.modified = false;
@@ -94,7 +95,7 @@ var mxNitokuIntegration = {
 		        		jdata.response.id === "data-update"){
 		            
 		        	mxNitokuIntegrationXml = jdata.response.data;
-		        	console.log(mxNitokuIntegrationXml);
+		        	//console.log(mxNitokuIntegrationXml);
 		        	mxNitokuIntegration.initGraph();
 		        	
 		        }
@@ -163,9 +164,9 @@ var mxNitokuIntegration = {
 			
 			// Configures the default graph theme
 			var themes = new Object();
-			//themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement(); 
+			themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement(); 
 			//console.log(xhr[1].getDocumentElement());
-			
+			//console.log("test here");
 			// Main
 			//var editor = new Editor(urlParams['chrome'] == '0', themes);
 			var editor = new Editor(urlParams['chrome'] == '0', themes);
@@ -270,20 +271,18 @@ var mxNitokuIntegration = {
 				
 				// Adds zoom buttons in top, left corner
 				var buttons = document.createElement('div');
-				buttons.style.position = 'absolute';
-				buttons.style.overflow = 'visible';
-				buttons.style.display = 'flex';
-				buttons.style.width = '100%';
-				buttons.style.justifyContent = 'center';
+				buttons.classList.add("blockZoomButtonsWrapper");
 				
-				var bs = graph.getBorderSizes();
+				var editButtons = document.createElement('div');
+				editButtons.classList.add("blockEditButtonsWrapper");
 				
-				buttons.style.top = (container.offsetTop + bs.y) + 'px';
+				//var bs = graph.getBorderSizes();
+				//buttons.style.top = (container.offsetTop + bs.y) + 'px';
 				//buttons.style.left = (container.offsetLeft + bs.x) + 'px';
 				
 				var left = 0;
-				var bw = 26;
-				var bh = 26;
+				var bw = 30;
+				var bh = 30;
 				
 				if (mxClient.IS_QUIRKS)
 				{
@@ -291,20 +290,29 @@ var mxNitokuIntegration = {
 					bh -= 1;
 				}
 				
-				function addButton(label, funct)
+				function addButton(label, funct, iconClass)
 				{
+//					var btn = document.createElement('div');
+//					mxUtils.write(btn, label);
+//					
+//					btn.classList.add("blockZoomButtons");
+//					
+//					btn.style.width = bw + 'px';
+//					btn.style.height = bh + 'px';
+//					
+//					mxEvent.addListener(btn, 'click', function(evt)
+//					{
+//						funct();
+//						mxEvent.consume(evt);
+//					});
+//					
+//					left += bw;
+//					
+//					buttons.appendChild(btn);
+					
 					var btn = document.createElement('div');
-					mxUtils.write(btn, label);
-					//btn.style.position = 'absolute';
-					btn.style.backgroundColor = 'transparent';
-					btn.style.border = '1px solid gray';
-					btn.style.textAlign = 'center';
-					btn.style.fontSize = '10px';
-					btn.style.cursor = 'hand';
-					btn.style.width = bw + 'px';
-					btn.style.height = bh + 'px';
-					//btn.style.left = left + 'px';
-					//btn.style.top = '0px';
+					
+					btn.classList.add("blockZoomButtons");
 					
 					mxEvent.addListener(btn, 'click', function(evt)
 					{
@@ -312,13 +320,52 @@ var mxNitokuIntegration = {
 						mxEvent.consume(evt);
 					});
 					
-					left += bw;
-					
+					var btnIcon = document.createElement('div');
+					btnIcon.classList.add("nitoku-icon");
+					btnIcon.classList.add("fa");
+					btnIcon.classList.add(iconClass);
+					btn.appendChild(btnIcon);
+
+					var labelText = document.createElement('div');
+					labelText.classList.add("icon-label");
+					labelText.innerHTML = label;
+					btn.appendChild(labelText);
+
 					buttons.appendChild(btn);
+					
 				};
 				
-				addButton('+', function()
+				function addEditButton(funct)
 				{
+					
+					var btn = document.createElement('div');
+										
+					btn.classList.add("blockEditButtons");
+					
+					mxEvent.addListener(btn, 'click', function(evt)
+					{
+						funct();
+						mxEvent.consume(evt);
+					});
+					
+					var btnIcon = document.createElement('div');
+					btnIcon.classList.add("nitoku-icon");
+					btnIcon.classList.add("fa");
+					btnIcon.classList.add("fa-desktop");
+					btn.appendChild(btnIcon);
+
+					var labelText = document.createElement('div');
+					labelText.classList.add("icon-label");
+					labelText.innerHTML = "Edit block data";
+					btn.appendChild(labelText);
+
+					editButtons.appendChild(btn);
+					
+				};
+				
+				addButton('Zoom in', function()
+				{
+					
 					graph.zoomIn();
 					var height = container.offsetHeight + 20;
 					if(!mxNitokuDevFlag){
@@ -328,10 +375,12 @@ var mxNitokuIntegration = {
 						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
 	   							+ height + "'}","*");
 					}
-				});
+					
+				}, "fa-search-plus");
 				
-				addButton('-', function()
+				addButton('Zoom out', function()
 				{
+					
 					graph.zoomOut();
 					var height = container.offsetHeight + 20;
 					if(!mxNitokuDevFlag){
@@ -341,9 +390,10 @@ var mxNitokuIntegration = {
 						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
 	   							+ height + "'}","*");
 					}
-				});
+					
+				}, "fa-search-minus");
 
-				addButton('Edit', function()
+				addEditButton(function()
 				{
 			    	if (screenfull.enabled) {
 			    		if(!screenfull.isFullscreen){
@@ -351,16 +401,13 @@ var mxNitokuIntegration = {
 							screenfull.request();
 						}
 					}
+			    	
 				});
 
-				if (container.nextSibling != null)
-				{
-					container.parentNode.insertBefore(buttons, container.nextSibling);
-				}
-				else
-				{
-					container.appendChild(buttons);
-				}
+				 
+				container.parentNode.appendChild(buttons);
+				container.parentNode.appendChild(editButtons);
+				
 			}
 
 		}
