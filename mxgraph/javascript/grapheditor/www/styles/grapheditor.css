@@ -35,7 +35,7 @@
 	display : none;
 	width : 100%;
 	justify-content : center;
-	
+
 }
 
 .blockEditButtonsWrapper {
@@ -80,7 +80,6 @@
 .geEditor:hover > .blockZoomButtonsWrapper {
 	display : flex;
 }
-
 
 .geEditor input[type=text]::-ms-clear {
 	display: none;

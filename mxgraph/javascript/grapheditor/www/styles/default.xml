@@ -6,9 +6,9 @@
 		<add as="fontFamily" value="Helvetica"/>
 		<add as="align" value="center"/>
 		<add as="verticalAlign" value="middle"/>
-		<add as="fillColor" value="#c3d9ff"/>
-		<add as="strokeColor" value="#6482b9"/>
-		<add as="fontColor" value="#774400"/>
+		<add as="fillColor" value="#c6e8db"/>
+		<add as="strokeColor" value="#1b9866"/>
+		<add as="fontColor" value="#676a6c"/>
 	</add>
 	<add as="defaultEdge">
 		<add as="shape" value="connector"/>
@@ -19,8 +19,8 @@
 		<add as="align" value="center"/>
 		<add as="verticalAlign" value="middle"/>
 		<add as="rounded" value="1"/>
-		<add as="strokeColor" value="#6482b9"/>
-		<add as="fontColor" value="#774400"/>
+		<add as="strokeColor" value="#1b9866"/>
+		<add as="fontColor" value="#676a6c"/>
 	</add>
 	<add as="text">
 		<add as="fillColor" value="none"/>
@@ -100,6 +100,6 @@
 	<add as="arrow">
 		<add as="shape" value="arrow"/>
 		<add as="edgeStyle" value="none"/>
-		<add as="fillColor" value="#c3d9ff"/>
+		<add as="fillColor" value="#c6e8db"/>
 	</add>
 </mxStylesheet>

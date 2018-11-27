@@ -239,6 +239,14 @@ var mxNitokuIntegration = {
 				graph.setEnabled(false);
 				graph.htmlLabels = true;
 
+				//If a generic image style is not added the images will not be displayed.
+				var style = new Object();
+				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_CENTER;
+				style[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				graph.getStylesheet().putCellStyle('image', style);
+				
 				// Changes the default style for edges "in-place"
 				//var style = graph.getStylesheet().getDefaultEdgeStyle();
 				//style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
@@ -257,7 +265,8 @@ var mxNitokuIntegration = {
 				//graph.resizeContainer = false;
 				
 				//request new height for the block
-				var height = container.offsetHeight + 20;
+				var height = this.calculateHeight();
+				
 				//If the width is larger than the available width we need to zoom in by the required
 				//factor and then request the height to the blockApi service
 				
@@ -356,42 +365,42 @@ var mxNitokuIntegration = {
 
 					var labelText = document.createElement('div');
 					labelText.classList.add("icon-label");
-					labelText.innerHTML = "Edit block data";
+					labelText.innerHTML = "Edit graph";
 					btn.appendChild(labelText);
 
 					editButtons.appendChild(btn);
 					
 				};
 				
-				addButton('Zoom in', function()
-				{
-					
-					graph.zoomIn();
-					var height = container.offsetHeight + 20;
-					if(!mxNitokuDevFlag){
-						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
-   							+ height + "'}","https://www.nitoku.com");
-					}else{
-						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
-	   							+ height + "'}","*");
-					}
-					
-				}, "fa-search-plus");
-				
-				addButton('Zoom out', function()
-				{
-					
-					graph.zoomOut();
-					var height = container.offsetHeight + 20;
-					if(!mxNitokuDevFlag){
-						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
-   							+ height + "'}","https://www.nitoku.com");
-					}else{
-						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
-	   							+ height + "'}","*");
-					}
-					
-				}, "fa-search-minus");
+//				addButton('Zoom in', function()
+//				{
+//					
+//					graph.zoomIn();
+//					var height = this.calculateHeight();
+//					if(!mxNitokuDevFlag){
+//						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+//   							+ height + "'}","https://www.nitoku.com");
+//					}else{
+//						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+//	   							+ height + "'}","*");
+//					}
+//					
+//				}, "fa-search-plus");
+//				
+//				addButton('Zoom out', function()
+//				{
+//					
+//					graph.zoomOut();
+//					var height = this.calculateHeight();
+//					if(!mxNitokuDevFlag){
+//						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+//   							+ height + "'}","https://www.nitoku.com");
+//					}else{
+//						window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
+//	   							+ height + "'}","*");
+//					}
+//					
+//				}, "fa-search-minus");
 
 				addEditButton(function()
 				{
@@ -408,8 +417,23 @@ var mxNitokuIntegration = {
 				container.parentNode.appendChild(buttons);
 				container.parentNode.appendChild(editButtons);
 				
+			}else{
+				console.log("empty string!!! need to edit block data buttom!!!! ");
 			}
-
+		  }
+		},
+		
+		calculateHeight : function()
+		{
+			var container = document.getElementById('mxgraph');
+			var height;
+			if(container.offsetHeight < 100){
+				height = 100;	
+			}else{
+				height = container.offsetHeight + 20;
+			}
+			return height;
+			
 		}
 
 //		window.document.body.innerText = "";
@@ -490,6 +514,6 @@ var mxNitokuIntegration = {
 //				'<center style="margin-top:10%;">Error loading resource files. Please check browser console.</center>';
 //		});
 
-	}
+	
 	
 };
