@@ -29,8 +29,10 @@ var mxNitokuIntegration = {
 				
 				if(!screenfull.isFullscreen){
 					
+					//mxNitokuIntegrationTmpXml = 
+					//		mxNitokuEditorUi.editor.getGraphXml().outerHTML;
 					mxNitokuIntegrationTmpXml = 
-							mxNitokuEditorUi.editor.getGraphXml().outerHTML;
+						mxUtils.getPrettyXml(mxNitokuEditorUi.editor.getGraphXml());
 					
 					if(mxNitokuIntegrationXml.trim()
 								.localeCompare(mxNitokuIntegrationTmpXml.trim()) === 0){
@@ -165,10 +167,8 @@ var mxNitokuIntegration = {
 			// Configures the default graph theme
 			var themes = new Object();
 			themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement(); 
-			//console.log(xhr[1].getDocumentElement());
-			//console.log("test here");
+		
 			// Main
-			//var editor = new Editor(urlParams['chrome'] == '0', themes);
 			var editor = new Editor(urlParams['chrome'] == '0', themes);
 			//var editor = new Editor(true);
 			mxNitokuEditorUi =  new EditorUi(editor);
@@ -204,17 +204,9 @@ var mxNitokuIntegration = {
 	   window.document.body.innerHTML = "<div id='mxgraph'></div>";	 
 	   var editor = $('#mxgraph');
        const target = editor[0]; // Get DOM element from jQuery
-	   //editor.hide();
-		
-       // collection
-       //$('#mxgraph').on('click', () => {
-  	   //});
 	       
 		var container = document.getElementById('mxgraph');
 	       
-	    // Program starts here. Creates a sample graph in the
-	    // DOM node with the specified ID. This function is invoked
-	    // from the onLoad event handler of the document (see below).
 		// Checks if the browser is supported
 		if (!mxClient.isBrowserSupported())
 		{
@@ -237,8 +229,81 @@ var mxNitokuIntegration = {
 				graph.centerZoom = true;
 				graph.setTooltips(true);
 				graph.setEnabled(false);
-				graph.htmlLabels = true;
+				graph.setHtmlLabels(true);
+				
+				// Creates the default style for vertices
+				style = new Object();
+				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_LABEL;
+				style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+				style[mxConstants.STYLE_FILLCOLOR] = '#c6e8db';
+				style[mxConstants.STYLE_FONTCOLOR] = '#676a6c';
+				style[mxConstants.STYLE_STROKECOLOR] = '#1b9866';
+				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+				style[mxConstants.STYLE_FONTSIZE] = '12';
+				style[mxConstants.STYLE_FONTFAMILY] = 'Helvetica';
+				graph.getStylesheet().putDefaultVertexStyle(style);
+		
+				// Creates the default style for edges
+				style = new Object();
+				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
+				style[mxConstants.STYLE_STROKECOLOR] = '#1b9866';
+				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+				//style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
+				style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
+				style[mxConstants.STYLE_FONTSIZE] = '11';
+				style[mxConstants.STYLE_FONTFAMILY] = 'Helvetica';
+				style[mxConstants.STYLE_FONTCOLOR] = '#676a6c';
+				style[mxConstants.STYLE_ROUNDED] = '1';
+				graph.getStylesheet().putDefaultEdgeStyle(style);
+				
+				// Changes the default style for edges "in-place"
+				//var style = graph.getStylesheet().getDefaultEdgeStyle();
+				//style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
+				
+				var style = new Object();
+				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_STROKECOLOR] = 'none';
+				style[mxConstants.STYLE_FILLCOLOR] = 'none';
+				style[mxConstants.STYLE_GRADIENTCOLOR] = 'none';
+				graph.getStylesheet().putCellStyle('text', style);
+				
+				var style = new Object();
+				style[mxConstants.STYLE_FONTSTYLE] = '1';
+				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+				style[mxConstants.STYLE_SPACING_LEFT] = '52';
+				style[mxConstants.STYLE_SPACING] = '2';
+				style[mxConstants.STYLE_IMAGE_WIDTH] = '42';
+				style[mxConstants.STYLE_IMAGE_HEIGHT] = '42';
+				style[mxConstants.STYLE_ROUNDED] = '1';
+				graph.getStylesheet().putCellStyle('label', style);
 
+				var style = new Object();
+				style[mxConstants.STYLE_SHAPE] = 'ellipse';
+				style[mxConstants.STYLE_PERIMETER] = 'ellipsePerimeter';
+				graph.getStylesheet().putCellStyle('ellipse', style);
+				
+				var style = new Object();
+				style[mxConstants.STYLE_SHAPE] = 'rhombus';
+				style[mxConstants.STYLE_PERIMETER] = 'rhombusPerimeter';
+				graph.getStylesheet().putCellStyle('rhombus', style);
+				
+				var style = new Object();
+				style[mxConstants.STYLE_SHAPE] = 'triangle';
+				style[mxConstants.STYLE_PERIMETER] = 'trianglePerimeter';
+				graph.getStylesheet().putCellStyle('triangle', style);
+				
+				var style = new Object();
+				style[mxConstants.STYLE_SHAPE] = 'line';
+				style[mxConstants.STYLE_STROKEWIDTH] = '4';
+				style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = '#ffffff';
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_SPACING_TOP] = '8';
+				graph.getStylesheet().putCellStyle('line', style);
+			
 				//If a generic image style is not added the images will not be displayed.
 				var style = new Object();
 				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
@@ -246,10 +311,30 @@ var mxNitokuIntegration = {
 				style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_CENTER;
 				style[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
 				graph.getStylesheet().putCellStyle('image', style);
+			
+				var style = new Object();
+				//extends image
+				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_CENTER;
+				style[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_PERIMETER] = 'ellipsePerimeter';
+				graph.getStylesheet().putCellStyle('roundImage', style);
 				
-				// Changes the default style for edges "in-place"
-				//var style = graph.getStylesheet().getDefaultEdgeStyle();
-				//style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
+				var style = new Object();
+				//extends image
+				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_CENTER;
+				style[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_PERIMETER] = 'rhombusPerimeter';
+				graph.getStylesheet().putCellStyle('rhombusImage', style);
+				
+				var style = new Object();
+				style[mxConstants.STYLE_SHAPE] ='arrow';
+				style[mxConstants.STYLE_EDGE] = 'none';
+				style[mxConstants.STYLE_FILLCOLOR] = '#c6e8db';
+				graph.getStylesheet().putCellStyle('arrow', style);
 				
 				// Enables panning with left mouse button
 				graph.panningHandler.useLeftButtonForPanning = true;
@@ -264,50 +349,17 @@ var mxNitokuIntegration = {
 				decoder.decode(node, graph.getModel());
 				//graph.resizeContainer = false;
 				
-				//request new height for the block
-				var height = this.calculateHeight();
-				
-				//If the width is larger than the available width we need to zoom in by the required
-				//factor and then request the height to the blockApi service
-				
-				if(!mxNitokuDevFlag){
-					window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
-						   							+ height + "'}","https://www.nitoku.com");
-				}else{
-					window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
-   							+ height + "'}","*");
-				}
-				
 				// Adds zoom buttons in top, left corner
-				var buttons = document.createElement('div');
-				buttons.classList.add("blockZoomButtonsWrapper");
+//				var buttons = document.createElement('div');
+//				buttons.classList.add("blockZoomButtonsWrapper");
 				
-				var editButtons = document.createElement('div');
-				editButtons.classList.add("blockEditButtonsWrapper");
 				
-				//var bs = graph.getBorderSizes();
-				//buttons.style.top = (container.offsetTop + bs.y) + 'px';
-				//buttons.style.left = (container.offsetLeft + bs.x) + 'px';
-				
-				var left = 0;
-				var bw = 30;
-				var bh = 30;
-				
-				if (mxClient.IS_QUIRKS)
-				{
-					bw -= 1;
-					bh -= 1;
-				}
-				
-				function addButton(label, funct, iconClass)
-				{
+//				function addButton(label, funct, iconClass)
+//				{
+//
 //					var btn = document.createElement('div');
-//					mxUtils.write(btn, label);
 //					
 //					btn.classList.add("blockZoomButtons");
-//					
-//					btn.style.width = bw + 'px';
-//					btn.style.height = bh + 'px';
 //					
 //					mxEvent.addListener(btn, 'click', function(evt)
 //					{
@@ -315,63 +367,20 @@ var mxNitokuIntegration = {
 //						mxEvent.consume(evt);
 //					});
 //					
-//					left += bw;
-//					
+//					var btnIcon = document.createElement('div');
+//					btnIcon.classList.add("nitoku-icon");
+//					btnIcon.classList.add("fa");
+//					btnIcon.classList.add(iconClass);
+//					btn.appendChild(btnIcon);
+//
+//					var labelText = document.createElement('div');
+//					labelText.classList.add("icon-label");
+//					labelText.innerHTML = label;
+//					btn.appendChild(labelText);
+//
 //					buttons.appendChild(btn);
-					
-					var btn = document.createElement('div');
-					
-					btn.classList.add("blockZoomButtons");
-					
-					mxEvent.addListener(btn, 'click', function(evt)
-					{
-						funct();
-						mxEvent.consume(evt);
-					});
-					
-					var btnIcon = document.createElement('div');
-					btnIcon.classList.add("nitoku-icon");
-					btnIcon.classList.add("fa");
-					btnIcon.classList.add(iconClass);
-					btn.appendChild(btnIcon);
-
-					var labelText = document.createElement('div');
-					labelText.classList.add("icon-label");
-					labelText.innerHTML = label;
-					btn.appendChild(labelText);
-
-					buttons.appendChild(btn);
-					
-				};
-				
-				function addEditButton(funct)
-				{
-					
-					var btn = document.createElement('div');
-										
-					btn.classList.add("blockEditButtons");
-					
-					mxEvent.addListener(btn, 'click', function(evt)
-					{
-						funct();
-						mxEvent.consume(evt);
-					});
-					
-					var btnIcon = document.createElement('div');
-					btnIcon.classList.add("nitoku-icon");
-					btnIcon.classList.add("fa");
-					btnIcon.classList.add("fa-desktop");
-					btn.appendChild(btnIcon);
-
-					var labelText = document.createElement('div');
-					labelText.classList.add("icon-label");
-					labelText.innerHTML = "Edit graph";
-					btn.appendChild(labelText);
-
-					editButtons.appendChild(btn);
-					
-				};
-				
+//					
+//				};
 //				addButton('Zoom in', function()
 //				{
 //					
@@ -401,25 +410,31 @@ var mxNitokuIntegration = {
 //					}
 //					
 //				}, "fa-search-minus");
-
-				addEditButton(function()
-				{
-			    	if (screenfull.enabled) {
-			    		if(!screenfull.isFullscreen){
-							mxNitokuIntegration.initEditor();
-							screenfull.request();
-						}
-					}
-			    	
-				});
-
-				 
-				container.parentNode.appendChild(buttons);
-				container.parentNode.appendChild(editButtons);
+//				container.parentNode.appendChild(buttons);
 				
-			}else{
-				console.log("empty string!!! need to edit block data buttom!!!! ");
+				
+				
 			}
+			
+			//request new height for the block
+			var height = this.calculateHeight();
+			
+			//If the width is larger than the available width we need to zoom in by the required
+			//factor and then request the height to the blockApi service
+			
+			if(!mxNitokuDevFlag){
+				window.parent.postMessage(
+						"{'service':'@nitoku.public/blockApi','request':'get-height:"
+					   	+ height + "'}","https://www.nitoku.com");
+			}else{
+				window.parent.postMessage(
+						"{'service':'@nitoku.public/blockApi','request':'get-height:"
+							+ height + "'}","*");
+			}
+			
+			mxNitokuIntegration.addEditButton();
+			
+			
 		  }
 		},
 		
@@ -434,86 +449,45 @@ var mxNitokuIntegration = {
 			}
 			return height;
 			
-		}
-
-//		window.document.body.innerText = "";
-//		var urlParams = (function(url)
-//				{
-//					var result = new Object();
-//					var idx = url.lastIndexOf('?');
-//			
-//					if (idx > 0)
-//					{
-//						var params = url.substring(idx + 1).split('&');
-//						
-//						for (var i = 0; i < params.length; i++)
-//						{
-//							idx = params[i].indexOf('=');
-//							
-//							if (idx > 0)
-//							{
-//								result[params[i].substring(0, idx)] = params[i].substring(idx + 1);
-//							}
-//						}
-//					}
-//					
-//					return result;
-//				})(window.location.href);
-//		
-//		var editorUiInit = EditorUi.prototype.init;
-//		
-//		EditorUi.prototype.init = function()
-//		{
-//			editorUiInit.apply(this, arguments);
-//			
-//		};
-//		
-//		// Adds required resources (disables loading of fallback properties, this can only
-//		// be used if we know that all keys are defined in the language specific file)
-//		mxResources.loadDefaultBundle = false;
-//		var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
-//		mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);
-//
-//		// 	Fixes possible asynchronous requests
-//		mxUtils.getAll([bundle, STYLE_PATH + '/default.xml'], function(xhr)
-//		{
-//			// Adds bundle text to resources
-//			mxResources.parse(xhr[0].getText());
-//			
-//			// Configures the default graph theme
-//			var themes = new Object();
-//			//themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement(); 
-//			console.log(xhr[1].getDocumentElement());
-//			
-//			// Main
-//			//var editor = new Editor(urlParams['chrome'] == '0', themes);
-//			//var editor = new Editor(urlParams['chrome'] == '0', themes);
-//			var editor = new Editor(true);
-//			mxNitokuEditorUi =  new EditorUi(editor);
-//			
-//			var doc = mxUtils.parseXml(mxNitokuIntegrationXml);
-//			var node = doc.documentElement;
-//			//var decoder = new mxCodec(node);
-//			//decoder.decode(node, editor.graph.getModel());
-//			mxNitokuEditorUi.editor.graph.model.beginUpdate();
-//			try
-//			{
-//				mxNitokuEditorUi.editor.setGraphXml(node);
-//			}
-//			catch (e)
-//			{
-//				error = e;
-//			}
-//			finally
-//			{
-//				mxNitokuEditorUi.editor.graph.model.endUpdate();				
-//			}			
-//		}, function()
-//		{
-//			document.body.innerHTML = 
-//				'<center style="margin-top:10%;">Error loading resource files. Please check browser console.</center>';
-//		});
-
+		},
+		
+		addEditButton : function() {
 	
+			var editButtons = document.createElement('div');
+			editButtons.classList.add("blockEditButtonsWrapper");
+
+			var btn = document.createElement('div');
+			
+			btn.classList.add("blockEditButtons");
+			
+			mxEvent.addListener(btn, 'click', function(evt)
+			{
+				if (screenfull.enabled) {
+			    	if(!screenfull.isFullscreen){
+						mxNitokuIntegration.initEditor();
+						screenfull.request();
+					}
+				}
+				mxEvent.consume(evt);
+				
+			});
+			
+			var btnIcon = document.createElement('div');
+			btnIcon.classList.add("nitoku-icon");
+			btnIcon.classList.add("fa");
+			btnIcon.classList.add("fa-desktop");
+			btn.appendChild(btnIcon);
+
+			var labelText = document.createElement('div');
+			labelText.classList.add("icon-label");
+			labelText.innerHTML = "Edit graph";
+			btn.appendChild(labelText);
+
+			editButtons.appendChild(btn);
+			
+			var container = document.getElementById('mxgraph');
+			container.parentNode.appendChild(editButtons);
+			
+		}
 	
 };

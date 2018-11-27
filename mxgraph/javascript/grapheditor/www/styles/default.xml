@@ -12,7 +12,6 @@
 	</add>
 	<add as="defaultEdge">
 		<add as="shape" value="connector"/>
-		<add as="labelBackgroundColor" value="#ffffff"/>
 		<add as="endArrow" value="classic"/>
 		<add as="fontSize" value="11"/>
 		<add as="fontFamily" value="Helvetica"/>
