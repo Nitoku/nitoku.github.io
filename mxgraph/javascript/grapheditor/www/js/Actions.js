@@ -1164,7 +1164,8 @@ Actions.prototype.init = function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
-			var title = mxResources.get('image') + ' (' + mxResources.get('url') + '):';
+			//var title = mxResources.get('image') + ' (' + mxResources.get('url') + '):';
+			var title = mxResources.get('insert');
 	    	var state = graph.getView().getState(graph.getSelectionCell());
 	    	var value = '';
 	    	

@@ -3584,31 +3584,11 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
  */
 EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 {
-	var cellEditor = this.editor.graph.cellEditor;
-	var selState = cellEditor.saveSelection();
-	var newValue = mxUtils.prompt(title, value);
-	cellEditor.restoreSelection(selState);
+
+	var dlg = new ImageDialog(this, value, title, fn);
+	this.showDialog(dlg.container, 420, 90, true, true, null, true);
+	dlg.init();
 	
-	if (newValue != null && newValue.length > 0)
-	{
-		var img = new Image();
-		
-		img.onload = function()
-		{
-			fn(newValue, img.width, img.height);
-		};
-		img.onerror = function()
-		{
-			fn(null);
-			mxUtils.alert(mxResources.get('fileNotFound'));
-		};
-		
-		img.src = newValue;
-	}
-	else
-	{
-		fn(null);
-	}
 };
 
 /**
@@ -3617,7 +3597,7 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
 {
 	var dlg = new LinkDialog(this, value, btnLabel, fn);
-	this.showDialog(dlg.container, 420, 90, true, true);
+	this.showDialog(dlg.container, 420, 90, true, true, null, true);
 	dlg.init();
 };
 
@@ -3629,7 +3609,7 @@ EditorUi.prototype.showDataDialog = function(cell)
 	if (cell != null)
 	{
 		var dlg = new EditDataDialog(this, cell);
-		this.showDialog(dlg.container, 340, 340, true, false, null, false);
+		this.showDialog(dlg.container, 340, 340, true, false, null, true);
 		dlg.init();
 	}
 };
