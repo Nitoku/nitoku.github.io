@@ -399,7 +399,7 @@ Actions.prototype.init = function()
 					
 					var pt = graph.getFreeInsertPoint();
             		var linkCell = new mxCell(title, new mxGeometry(pt.x, pt.y, 100, 40),
-	            	    	'fontColor=#0000EE;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
+	            	    	'fontColor=#1b9866;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
 	            	    	'shape=label;imageWidth=16;imageHeight=16;spacingLeft=26;align=left;image=' + icon :
 	            	    	'spacing=10;'));
             	    linkCell.vertex = true;

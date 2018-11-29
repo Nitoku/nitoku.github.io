@@ -230,6 +230,28 @@ var mxNitokuIntegration = {
 				graph.setTooltips(true);
 				graph.setEnabled(false);
 				graph.setHtmlLabels(true);
+
+				// Overrides method to provide a cell label in the display
+				graph.convertValueToString = function(cell)
+				{
+					if (mxUtils.isNode(cell.value))
+					{
+						if (cell.value.nodeName.toLowerCase() == 'userobject')
+						{
+							//console.log(cell);
+							var link = cell.getAttribute('link', '');
+							var label = cell.getAttribute('label', '');
+							//console.log(link);
+							if (label != null && label.length > 0 )
+							{
+								return label;
+							}
+						}
+					}
+
+					return '';
+				};
+				
 				
 				// Creates the default style for vertices
 				style = new Object();
@@ -347,7 +369,7 @@ var mxNitokuIntegration = {
 				
 				graph.resizeContainer = true;
 				decoder.decode(node, graph.getModel());
-				//graph.resizeContainer = false;
+				
 				
 				// Adds zoom buttons in top, left corner
 //				var buttons = document.createElement('div');
