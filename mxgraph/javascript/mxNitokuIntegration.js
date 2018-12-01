@@ -4,20 +4,103 @@ var mxNitokuIntegrationTmpXml = "";
 
 var mxNitokuEditorUi;
 var mxNitokuDevFlag = true;
+var mxNitokuAppWindowInnerWidth;
+var graph;
+var containerWidth = 0;
 
 var mxNitokuIntegration = {
 	
 	init: function()
 	{
-		
+	
+	   mxNitokuAppWindowInnerWidth = document.body.offsetWidth;
 	   //window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-height:"
 	   //		   												+ 400 + "'}","https://www.nitoku.com");
 	   if(!mxNitokuDevFlag){
-		   window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-data'}",
-    		   															 "https://www.nitoku.com");
+		   window.parent.postMessage(
+				   			"{'service':'@nitoku.public/blockApi','request':'allow-same-origin'}",
+			 				"https://www.nitoku.com");
 	   }else{
-		   window.parent.postMessage("{'service':'@nitoku.public/blockApi','request':'get-data'}",
-				 "*");
+		   window.parent.postMessage(
+				   "{'service':'@nitoku.public/blockApi','request':'allow-same-origin'}",
+			 		"*");
+	   }
+
+	   window.addEventListener('message', function (e) {
+	          
+		    if(!mxNitokuDevFlag){
+			    if (e.origin !== ("https://www.nitoku.com")){
+			        console.warn("error on frame origin");
+			        return;
+			    }
+		    }
+			        
+		    if(e.data != null) {
+			    	
+	    	var jdata;
+	        try {
+		           	jdata = JSON.parse(e.data);
+		  		} catch (err) {
+		            return;
+		        }
+		  		
+		  		if(jdata.response.id === "allow-same-origin" && jdata.response.data === "same-origin-allowed"){
+		  			mxNitokuIntegration.initWithOrigin();
+		  			return;
+		  		}
+		  		
+		        if(jdata.service !== "@nitoku.public/blockApi"){
+		          	return;
+		        }
+	
+		        if(jdata.response.id === "get-data" || 
+		        		jdata.response.id === "data-update"){
+		            
+		        	mxNitokuIntegrationXml = jdata.response.data;
+		        	mxNitokuIntegration.initGraph();
+		        	
+		        }
+
+		        if(jdata.response.id === "get-inner-width"){
+		            
+		        	mxNitokuAppWindowInnerWidth = jdata.response.data;
+		        	
+		        }
+		        
+		        if(jdata.response.id === "set-data" && 
+		        		jdata.response.data === "accepted"){
+		            //console.log("accepted change");
+		        	mxNitokuIntegrationXml = mxNitokuIntegrationTmpXml;
+		        	//console.log(mxNitokuIntegrationXml);
+		        	mxNitokuIntegration.initGraph();
+		        	
+		        }
+		        
+		  	}
+		          
+		});
+
+	},
+
+	initWithOrigin: function() {
+		
+	   if(!mxNitokuDevFlag){
+		   window.parent.postMessage(
+				   			"{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
+			 				"https://www.nitoku.com");
+		   
+		   window.parent.postMessage(
+				   			"{'service':'@nitoku.public/blockApi','request':'get-data'}",
+    		   				"https://www.nitoku.com");
+
+	   }else{
+		   window.parent.postMessage(
+				   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
+			 		"*");
+		   window.parent.postMessage(
+				   "{'service':'@nitoku.public/blockApi','request':'get-data'}",
+				 	"*");
+
 	   }
 	   
 	   // Default resources are included in grapheditor resources
@@ -71,49 +154,23 @@ var mxNitokuIntegration = {
 			});
 	   }
 	   
-	   window.addEventListener('message', function (e) {
-	          
-		    if(!mxNitokuDevFlag){
-			    if (e.origin !== ("https://www.nitoku.com")){
-			        console.warn("error on frame origin");
-			        return;
-			    }
-		    }
-		        
-		    if(e.data != null) {
-		    	
-		    	var jdata;
-	            try {
-		           	jdata = JSON.parse(e.data);
-		  		} catch (err) {
-		            return;
-		        }
-		  			
-		        if(jdata.service !== "@nitoku.public/blockApi"){
-		          	return;
-		        }
-	
-		        if(jdata.response.id === "get-data" || 
-		        		jdata.response.id === "data-update"){
-		            
-		        	mxNitokuIntegrationXml = jdata.response.data;
-		        	//console.log(mxNitokuIntegrationXml);
-		        	mxNitokuIntegration.initGraph();
-		        	
-		        }
-
-		        if(jdata.response.id === "set-data" && 
-		        		jdata.response.data === "accepted"){
-		            //console.log("accepted change");
-		        	mxNitokuIntegrationXml = mxNitokuIntegrationTmpXml;
-		        	//console.log(mxNitokuIntegrationXml);
-		        	mxNitokuIntegration.initGraph();
-		        	
-		        }
-		        
-		  	}
-	          
-	  });
+	   const debounce = (func, wait, immediate) => {
+		    var timeout;
+		    return () => {
+		        const context = this, args = arguments;
+		        const later = function() {
+		            timeout = null;
+		            if (!immediate) func.apply(context, args);
+		        };
+		        const callNow = immediate && !timeout;
+		        clearTimeout(timeout);
+		        timeout = setTimeout(later, wait);
+		        if (callNow) func.apply(context, args);
+		    };
+	  };
+		
+	  window.addEventListener('resize', debounce(() => mxNitokuIntegration.zoomToFit(graph),
+			  200, false), false);
 	      
 	},
 
@@ -122,27 +179,27 @@ var mxNitokuIntegration = {
 		window.document.body.innerText = "";
 		
 		var urlParams = (function(url)
+		{
+			var result = new Object();
+			var idx = url.lastIndexOf('?');
+	
+			if (idx > 0)
+			{
+				var params = url.substring(idx + 1).split('&');
+				
+				for (var i = 0; i < params.length; i++)
 				{
-					var result = new Object();
-					var idx = url.lastIndexOf('?');
-			
+					idx = params[i].indexOf('=');
+					
 					if (idx > 0)
 					{
-						var params = url.substring(idx + 1).split('&');
-						
-						for (var i = 0; i < params.length; i++)
-						{
-							idx = params[i].indexOf('=');
-							
-							if (idx > 0)
-							{
-								result[params[i].substring(0, idx)] = params[i].substring(idx + 1);
-							}
-						}
+						result[params[i].substring(0, idx)] = params[i].substring(idx + 1);
 					}
-					
-					return result;
-				})(window.location.href);
+				}
+			}
+			
+			return result;
+		})(window.location.href);
 		
 		var editorUiInit = EditorUi.prototype.init;
 		
@@ -200,21 +257,29 @@ var mxNitokuIntegration = {
 	
 	initGraph : function()
 	{
-	     
-	   window.document.body.innerHTML = "<div id='mxgraph'></div>";	 
-	   var editor = $('#mxgraph');
-       const target = editor[0]; // Get DOM element from jQuery
-	       
-		var container = document.getElementById('mxgraph');
-	       
+	    
 		// Checks if the browser is supported
-		if (!mxClient.isBrowserSupported())
-		{
+		if (!mxClient.isBrowserSupported()){
+			
 			// Displays an error message if the browser is not supported.
 			mxUtils.error('Browser is not supported!', 200, false);
-		}
-		else
-		{
+			
+			return;
+			
+		}else if(!screenfull.enabled || screenfull.isFullscreen){
+			
+			return;
+		
+		}else if(mxNitokuIntegrationXml === ""){
+			
+			console.log("no graph block data available");
+			window.document.body.innerHTML = "<div id='mxgraph'></div>";	 
+			
+		}else{
+			
+			window.document.body.innerHTML = "<div id='mxgraph'></div>";
+			
+			var container = document.getElementById('mxgraph');
 			var xmlDocument = mxUtils.parseXml(mxNitokuIntegrationXml);
 			
 			if (xmlDocument.documentElement != null && 
@@ -225,12 +290,16 @@ var mxNitokuIntegration = {
 
 				container.innerHTML = '';
 
-				var graph = new mxGraph(container);
+				// Enables crisp rendering of rectangles in SVG
+				mxConstants.ENTITY_SEGMENT = 20;
+				
+				graph = new mxGraph(container);
+				
 				graph.centerZoom = true;
 				graph.setTooltips(true);
 				graph.setEnabled(false);
 				graph.setHtmlLabels(true);
-
+				
 				// Overrides method to provide a cell label in the display
 				graph.convertValueToString = function(cell)
 				{
@@ -241,17 +310,139 @@ var mxNitokuIntegration = {
 							//console.log(cell);
 							var link = cell.getAttribute('link', '');
 							var label = cell.getAttribute('label', '');
+							
+//							//create cell overlay
+//							var overlays = graph.getCellOverlays(cell);
+//								
+//							if (overlays == null)
+//							{
+//								// Creates a new overlay with an image and a tooltip
+//								var overlay = new mxCellOverlay(
+//										new mxImage('http://localhost:8080/src/images/point.gif', 16, 16),label);
+//								overlay.cursor = "pointer";
+//									// Sets the overlay for the cell in the graph
+//								graph.addCellOverlay(cell, overlay);
+//								
+//							}
+
 							//console.log(link);
 							if (label != null && label.length > 0 )
 							{
 								return label;
 							}
+														
 						}
 					}
 
-					return '';
+					return cell.value;
+					
 				};
-				
+							
+					function updateStyle(state, hover, cell)
+					{
+						if (hover)
+						{
+
+							if(cell != null){
+								//console.log(cell);
+							    if (mxUtils.isNode(cell.value))
+								{
+									if (cell.value.nodeName.toLowerCase() == 'userobject')
+									{
+										graph.container.style.cursor = "pointer";			
+									}
+								}
+							    
+							}
+							
+						}else{
+							
+							graph.container.style.cursor = "default";
+							
+						}
+						
+					};
+					
+					// Changes fill color to red on mouseover
+					graph.addMouseListener(
+					{
+					    currentState: null,
+					    previousStyle: null,
+					    mouseDown: function(sender, me)
+					    {
+					        if (this.currentState != null)
+					        {
+					        	this.dragLeave(me.getEvent(), this.currentState, me.getCell());
+					        	this.currentState = null;
+					        }
+					    },
+					    mouseMove: function(sender, me)
+					    {
+					        if (this.currentState != null && me.getState() == this.currentState)
+					        {
+					            return;
+					        }
+
+					        var tmp = graph.view.getState(me.getCell());
+
+					        // Ignores everything but vertices
+					        if (graph.isMouseDown || (tmp != null && !
+					            graph.getModel().isVertex(tmp.cell)))
+					        {
+					        	tmp = null;
+					        }
+
+					        if (tmp != this.currentState)
+					        {
+					            if (this.currentState != null)
+					            {
+					                this.dragLeave(me.getEvent(), this.currentState, me.getCell());
+					            }
+
+					            this.currentState = tmp;
+
+					            if (this.currentState != null)
+					            {
+					                this.dragEnter(me.getEvent(), this.currentState, me.getCell());
+					            }
+					        }
+					    },
+					    mouseUp: function(sender, me) { 
+							var cell = me.getCell(); 
+							
+							if(cell != null){
+								//console.log(cell);
+							    if (mxUtils.isNode(cell.value))
+								{
+									if (cell.value.nodeName.toLowerCase() == 'userobject')
+									{
+										//console.log(cell);
+										var link = cell.getAttribute('link', '');
+										var label = cell.getAttribute('label', '');
+										
+										window.open(link, label);
+
+										//console.log(link);
+										//console.log(label);
+									}
+								}
+							}
+					    },
+					    dragEnter: function(evt, state, cell)
+					    {
+					        if (state != null)
+					        {
+					        	updateStyle(state, true, cell);
+					        }
+					    },
+					    dragLeave: function(evt, state, cell)
+					    {
+					        if (state != null)
+					        {
+					        	updateStyle(state, false, cell);
+					        }
+					    }
+					});
 				
 				// Creates the default style for vertices
 				style = new Object();
@@ -302,6 +493,39 @@ var mxNitokuIntegration = {
 				style[mxConstants.STYLE_IMAGE_HEIGHT] = '42';
 				style[mxConstants.STYLE_ROUNDED] = '1';
 				graph.getStylesheet().putCellStyle('label', style);
+
+				var style = new Object();
+				style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_CENTER;
+				style[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = 'bottom';
+				style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = '#ffffff';	
+				style[mxConstants.STYLE_FONTSTYLE] = '0';
+				style[mxConstants.STYLE_IMAGE_WIDTH] = '48';
+				style[mxConstants.STYLE_IMAGE_HEIGHT] = '48';
+				style[mxConstants.STYLE_FONTSTYLE] = '1';
+				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_SPACING_LEFT] = '0';
+				style[mxConstants.STYLE_SPACING_TOP] = '6';
+				style[mxConstants.STYLE_SPACING] = '0';
+				style[mxConstants.STYLE_IMAGE_WIDTH] = '42';
+				style[mxConstants.STYLE_IMAGE_HEIGHT] = '42';
+				style[mxConstants.STYLE_ROUNDED] = '1';
+				//extends label ends
+				graph.getStylesheet().putCellStyle('icon', style);
+
+				var style = new Object();
+				style[mxConstants.STYLE_FONTSIZE] = '12';
+				style[mxConstants.STYLE_FONTSTYLE] = '1';
+				style[mxConstants.STYLE_STARTSIZE] = '23';
+				graph.getStylesheet().putCellStyle('swimlane', style);
+
+				var style = new Object();
+				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+				style[mxConstants.STYLE_STROKECOLOR] = 'none';
+				style[mxConstants.STYLE_FILLCOLOR] = 'none';
+				style[mxConstants.STYLE_GRADIENTCOLOR] = 'none';
+				style[mxConstants.STYLE_POINTER_EVENTS] = 0;
+				graph.getStylesheet().putCellStyle('group', style);
 
 				var style = new Object();
 				style[mxConstants.STYLE_SHAPE] = 'ellipse';
@@ -358,10 +582,11 @@ var mxNitokuIntegration = {
 				style[mxConstants.STYLE_FILLCOLOR] = '#c6e8db';
 				graph.getStylesheet().putCellStyle('arrow', style);
 				
+
 				// Enables panning with left mouse button
-				graph.panningHandler.useLeftButtonForPanning = true;
-				graph.panningHandler.ignoreCell = true;
-				graph.container.style.cursor = 'move';
+				graph.panningHandler.useLeftButtonForPanning = false;
+				graph.panningHandler.ignoreCell = false;
+				//graph.container.style.cursor = 'move';
 				//graph.setPanning(false);
 				
 				// Do not allow removing labels from parents
@@ -437,12 +662,66 @@ var mxNitokuIntegration = {
 				
 				
 			}
-			
-			//request new height for the block
-			var height = this.calculateHeight();
+
+			containerWidth = parseInt(container.style.width, 10);
 			
 			//If the width is larger than the available width we need to zoom in by the required
 			//factor and then request the height to the blockApi service
+			this.zoomToFit(graph);
+			
+			//request new height for the block
+			
+		  }
+		  
+		  mxNitokuIntegration.addEditButton();
+		  
+		},
+		
+		zoomToFit : function(graph)
+		{
+			//console.log("zoom to fit");
+			
+			if(graph === null || graph === undefined){
+				//console.log("no graph");
+				return;
+			}
+			
+			var container = document.getElementById('mxgraph');
+			
+			if(container === null){
+				//console.log("no container");
+				return;
+				
+			}
+			
+			var bodyWidth = document.body.offsetWidth;
+			var _containerWidth = parseInt(container.style.width, 10);
+			
+			
+			if(_containerWidth > bodyWidth + 10){
+				
+				graph.zoom(bodyWidth/(_containerWidth + 10), false);
+				//console.log("shrink ");
+				
+			}else if(containerWidth < bodyWidth){
+				
+				//console.log("reset ");
+				graph.zoomActual();
+				
+			}else if (_containerWidth + 10 < bodyWidth ){
+				
+				graph.zoom(bodyWidth/(_containerWidth + 10), false);
+				//console.log("grow ");
+				
+			}else{
+
+				//console.log("container width : " + containerWidth);
+				//console.log("body width : " + document.body.offsetWidth);
+				//console.log("_containerWidth : " + _containerWidth);
+
+			}
+
+			var height = this.calculateHeight();
 			
 			if(!mxNitokuDevFlag){
 				window.parent.postMessage(
@@ -453,11 +732,6 @@ var mxNitokuIntegration = {
 						"{'service':'@nitoku.public/blockApi','request':'get-height:"
 							+ height + "'}","*");
 			}
-			
-			mxNitokuIntegration.addEditButton();
-			
-			
-		  }
 		},
 		
 		calculateHeight : function()
@@ -474,7 +748,13 @@ var mxNitokuIntegration = {
 		},
 		
 		addEditButton : function() {
-	
+			
+			//Has to be the number from the app.
+			if(!screenfull.enabled || 
+					mxNitokuAppWindowInnerWidth < 700){
+				return;
+			}
+			
 			var editButtons = document.createElement('div');
 			editButtons.classList.add("blockEditButtonsWrapper");
 
