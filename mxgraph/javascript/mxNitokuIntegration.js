@@ -117,6 +117,9 @@ var mxNitokuIntegration = {
 					mxNitokuIntegrationTmpXml = 
 						mxUtils.getPrettyXml(mxNitokuEditorUi.editor.getGraphXml());
 					
+					//var oParser = new DOMParser();
+					//var oDOM = oParser.parseFromString(mxNitokuIntegrationTmpXml, "application/xml");
+					
 					if(mxNitokuIntegrationXml.trim()
 								.localeCompare(mxNitokuIntegrationTmpXml.trim()) === 0){
 						
@@ -593,7 +596,15 @@ var mxNitokuIntegration = {
 				graph.graphHandler.removeCellsFromParent = false;
 				
 				graph.resizeContainer = true;
-				decoder.decode(node, graph.getModel());
+				//graph.backgroundImage = "";
+				
+				//graph.setBackgroundImage(new mxImage('', 40, 40));
+				//graph.backgroundImage = null;
+				var model = graph.getModel();
+				
+				graph.gridEnabled = false;
+				decoder.decode(node, model);
+				graph.container.style.backgroundColor = model.background;
 				
 				
 				// Adds zoom buttons in top, left corner

@@ -5106,7 +5106,7 @@ DiagramFormatPanel.prototype.addView = function(div)
 			}));
 		}
 		
-		// Background
+//		// Background
 		var bg = this.createColorOption(mxResources.get('background'), function()
 		{
 			return graph.background;
@@ -5131,7 +5131,8 @@ DiagramFormatPanel.prototype.addView = function(div)
 			{
 				ui.removeListener(this.listener);
 			}
-		});
+		}
+		);
 		
 		if (this.showBackgroundImageOption)
 		{
