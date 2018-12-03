@@ -3,7 +3,7 @@ var mxNitokuIntegrationXml = "";
 var mxNitokuIntegrationTmpXml = "";
 
 var mxNitokuEditorUi;
-var mxNitokuDevFlag = true;
+var mxNitokuDevFlag = false;
 var mxNitokuAppWindowInnerWidth;
 var mxNitokuReadOnly;
 var graph;
