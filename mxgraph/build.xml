@@ -198,7 +198,7 @@
 		   
 		  	<env key="PWD" value="${basedir}"/>
 	  	
-			<arg value="${basedir}/javascript/grapheditor/www/js/Init.js" />
+			
 			<arg value="${basedir}/javascript/grapheditor/www/deflate/pako.min.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/deflate/base64.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/jscolor/jscolor.js" />
@@ -215,7 +215,7 @@
 			<arg value="${basedir}/javascript/grapheditor/www/js/Dialogs.js" />
 		  		
 		  	<arg value="-o"/>
-		  	<arg value="${basedir}/nitoku.graph.min.1.0.1.js"/>
+		  	<arg value="${basedir}/nitoku.graph.min.1.0.2.js"/>
 		  	<arg value="-c"/>
 		  	<arg value="-m"/>
 		  	
