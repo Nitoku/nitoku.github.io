@@ -8,14 +8,14 @@ window.MAX_AREA = window.MAX_AREA || 15000 * 15000;
 // URLs for save and export
 window.EXPORT_URL = 'https://nitoku.github.io/mxgraph/javascript/grapheditor/www/export';
 window.SAVE_URL = 'https://nitoku.github.io/mxgraph/javascript/grapheditor/www/save';
-window.OPEN_URL = 'http://localhost:8080/open';
+window.OPEN_URL = 'http://nitoku.github.io/mxgraph/open';
 window.RESOURCES_PATH = 'https://nitoku.github.io/mxgraph/javascript/grapheditor/www/resources';
 window.RESOURCE_BASE = 'https://nitoku.github.io/mxgraph/javascript/grapheditor/www/resources/grapheditor';
 window.STENCIL_PATH = 'https://nitoku.github.io/mxgraph/javascript/grapheditor/www/stencils';
 window.IMAGE_PATH = 'https://nitoku.github.io/mxgraph/javascript/grapheditor/www/images';
 window.STYLE_PATH = 'https://nitoku.github.io/mxgraph/javascript/grapheditor/www/styles';
 window.CSS_PATH = 'https://nitoku.github.io/mxgraph/javascript/grapheditor/www/styles';
-window.OPEN_FORM = 'http://localhost:8080/open.html';
+window.OPEN_FORM = 'http://nitoku.github.io/mxgraph/open.html';
 
 // Sets the base path, the UI language via URL param and configures the
 // supported languages to avoid 404s. The loading of all core language

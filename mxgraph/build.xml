@@ -14,10 +14,10 @@
 
 <!-- ===================== Project Environment =========================== -->
 
-	<property name="source.home"    value="${basedir}/src"/>
-	<property name="example.home"   value="${basedir}/examples"/>
-	<property name="grapheditor.home" value="${basedir}/../javascript/grapheditor/java/src"/>
-	<property name="test.home"      value="${basedir}/test"/>
+	<property name="source.home"    value="${basedir}/java/src"/>
+	<property name="example.home"   value="${basedir}/java/examples"/>
+	<property name="grapheditor.home" value="${basedir}/java/../javascript/grapheditor/java/src"/>
+	<property name="test.home"      value="${basedir}/java/test"/>
 
 <!-- ==================== Compilation Options ==================== -->
 
@@ -33,20 +33,20 @@
 <!-- ==================== Clean ==================== -->
 
 	<target name="clean" description="Deletes all generated files and directories">
-		<delete dir="${basedir}/classes"/>
-		<delete dir="${basedir}/example-classes"/>
-		<delete dir="${basedir}/docs"/>
-		<delete dir="${basedir}/lib"/>
+		<delete dir="${basedir}/java/classes"/>
+		<delete dir="${basedir}/java/example-classes"/>
+		<delete dir="${basedir}/java/docs"/>
+		<delete dir="${basedir}/java/lib"/>
 	</target>
 
 <!-- ==================== Init ==================== -->
 
 	<target name="init" depends="clean" description="Initializes the build">
 		<tstamp/>
-		<mkdir dir="${basedir}/classes"/>
-		<mkdir dir="${basedir}/example-classes"/>
-		<mkdir dir="${basedir}/docs"/>
-		<mkdir dir="${basedir}/lib"/>
+		<mkdir dir="${basedir}/java/classes"/>
+		<mkdir dir="${basedir}/java/example-classes"/>
+		<mkdir dir="${basedir}/java/docs"/>
+		<mkdir dir="${basedir}/java/lib"/>
 	</target>
 
 <!-- ==================== Compile ==================== -->
@@ -56,9 +56,9 @@
 			debug="${compile.debug}"
 			deprecation="${compile.deprecation}"
 			optimize="${compile.optimize}"
-			destdir="${basedir}/classes">
+			destdir="${basedir}/java/classes">
 			<classpath>
-				<pathelement path="${basedir}/classes"/>
+				<pathelement path="${basedir}/java/classes"/>
 			</classpath>
 		</javac>
 	</target>
@@ -68,8 +68,8 @@
 	<target name="doc" depends="compile" description="Generates the API specification (javadoc)">
 		<javadoc packagenames="com.mxgraph.*"
 				 sourcepath="${source.home}"
-				 classpath="${basedir}/classes" 
-				 destdir="${basedir}/docs"
+				 classpath="${basedir}/java/classes" 
+				 destdir="${basedir}/java/docs"
 				 use="true"
 				 author="false"
 				 version="false"
@@ -85,7 +85,7 @@
 <!-- ==================== Build ==================== -->
 
 	<target name="build" depends="doc" description="Builds all Java archives (JARs)">
-		<jar jarfile="${basedir}/lib/${all.jar}">
+		<jar jarfile="${basedir}/java/lib/${all.jar}">
 			<manifest>
 				<attribute name="Vendor" value="JGraph Ltd"/>
 				<attribute name="Bundle-Version" value="${product.version}"/>
@@ -95,11 +95,11 @@
 			<fileset dir="${source.home}">
 				<exclude name="**/*.java"/>
 			</fileset>
-			<fileset dir="${basedir}/classes">
+			<fileset dir="${basedir}/java/classes">
 				<include name="com/mxgraph/**"/>
 			</fileset>
 		</jar>
-		<jar jarfile="${basedir}/lib/${core.jar}">
+		<jar jarfile="${basedir}/java/lib/${core.jar}">
 			<manifest>
 				<attribute name="Vendor" value="JGraph Ltd"/>
 				<attribute name="Bundle-Version" value="${product.version}"/>
@@ -111,12 +111,12 @@
 				<exclude name="**/*.java"/>
 				<include name="com/mxgraph/**"/>
 			</fileset>
-			<fileset dir="${basedir}/classes">
+			<fileset dir="${basedir}/java/classes">
 				<exclude name="com/mxgraph/swing/**"/>
 				<include name="com/mxgraph/**"/>
 			</fileset>
 		</jar>
-		<jar jarfile="${basedir}/lib/${swing.jar}">
+		<jar jarfile="${basedir}/java/lib/${swing.jar}">
 			<manifest>
 				<attribute name="Vendor" value="JGraph Ltd"/>
 				<attribute name="Bundle-Version" value="${product.version}"/>
@@ -126,11 +126,11 @@
 				<include name="com/mxgraph/swing/**"/>
 				<exclude name="**/*.java"/>
 			</fileset>
-			<fileset dir="${basedir}/classes">
+			<fileset dir="${basedir}/java/classes">
 				<include name="com/mxgraph/swing/**"/>
 			</fileset>
 		</jar>
-		<delete dir="${basedir}/classes"/>
+		<delete dir="${basedir}/java/classes"/>
 	</target>
 
 <!-- ==================== compile-examples ==================== -->
@@ -140,19 +140,19 @@
 			debug="${compile.debug}"
 			deprecation="${compile.deprecation}"
 			optimize="${compile.optimize}"
-			destdir="${basedir}/example-classes">
+			destdir="${basedir}/java/example-classes">
 			<src path="${example.home}"/>
 			<src path="${grapheditor.home}"/>
 			<classpath>
-				<pathelement path="${basedir}/classes"/>
-				<pathelement path="${basedir}/example-classes"/>
-				<pathelement location="${basedir}/jars/mxPdf.jar"/>
-				<pathelement location="${basedir}/jars/jetty-6.1.1.jar"/>
-				<pathelement location="${basedir}/jars/jetty-util-6.1.1.jar"/>
-				<pathelement location="${basedir}/jars/servlet-api-2.5-6.1.1.jar"/>
+				<pathelement path="${basedir}/java/classes"/>
+				<pathelement path="${basedir}/java/example-classes"/>
+				<pathelement location="${basedir}/java/jars/mxPdf.jar"/>
+				<pathelement location="${basedir}/java/jars/jetty-6.1.1.jar"/>
+				<pathelement location="${basedir}/java/jars/jetty-util-6.1.1.jar"/>
+				<pathelement location="${basedir}/java/jars/servlet-api-2.5-6.1.1.jar"/>
 			</classpath>
 		</javac>
-		<copy todir="${basedir}/example-classes">
+		<copy todir="${basedir}/java/example-classes">
 		  <fileset dir="${example.home}">
 		    <exclude name="**/*.java"/>
 		  </fileset>
@@ -162,14 +162,14 @@
 <!-- ==================== web-example ==================== -->
 	
 	<target name="web-example" depends="compile-examples" description="Runs the web example">
-		<java classname="com.mxgraph.examples.web.Main" dir="${basedir}/.." fork="true">
+		<java classname="com.mxgraph.examples.web.Main" dir="${basedir}/java/.." fork="true">
 			<classpath>
-				<pathelement path="${basedir}/classes"/>
-				<pathelement path="${basedir}/example-classes"/>
-				<pathelement location="${basedir}/jars/mxPdf.jar"/>
-				<pathelement location="${basedir}/jars/jetty-6.1.1.jar"/>
-				<pathelement location="${basedir}/jars/jetty-util-6.1.1.jar"/>
-				<pathelement location="${basedir}/jars/servlet-api-2.5-6.1.1.jar"/>
+				<pathelement path="${basedir}/java/classes"/>
+				<pathelement path="${basedir}/java/example-classes"/>
+				<pathelement location="${basedir}/java/jars/mxPdf.jar"/>
+				<pathelement location="${basedir}/java/jars/jetty-6.1.1.jar"/>
+				<pathelement location="${basedir}/java/jars/jetty-util-6.1.1.jar"/>
+				<pathelement location="${basedir}/java/jars/servlet-api-2.5-6.1.1.jar"/>
 			</classpath>
 		</java>
 	</target>
@@ -177,16 +177,49 @@
 <!-- ==================== grapheditor ==================== -->
 	
 	<target name="grapheditor" depends="compile-examples" description="Runs the grapheditor example">
-		<java classname="com.mxgraph.examples.web.GraphEditor" dir="${basedir}/.." fork="true">
+		<java classname="com.mxgraph.examples.web.GraphEditor" dir="${basedir}/java/.." fork="true">
 			<classpath>
-				<pathelement path="${basedir}/classes"/>
-				<pathelement path="${basedir}/example-classes"/>
-				<pathelement location="${basedir}/jars/mxPdf.jar"/>
-				<pathelement location="${basedir}/jars/jetty-6.1.1.jar"/>
-				<pathelement location="${basedir}/jars/jetty-util-6.1.1.jar"/>
-				<pathelement location="${basedir}/jars/servlet-api-2.5-6.1.1.jar"/>
+				<pathelement path="${basedir}/java/classes"/>
+				<pathelement path="${basedir}/java/example-classes"/>
+				<pathelement location="${basedir}/java/jars/mxPdf.jar"/>
+				<pathelement location="${basedir}/java/jars/jetty-6.1.1.jar"/>
+				<pathelement location="${basedir}/java/jars/jetty-util-6.1.1.jar"/>
+				<pathelement location="${basedir}/java/jars/servlet-api-2.5-6.1.1.jar"/>
 			</classpath>
 		</java>
 	</target>
 
+	<target name="uglifyjs_mxgraph" description="uglify js files">
+
+	  <exec executable="uglifyjs">
+		  	
+		  	<env key="PATH" 
+		  		value="=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"/>
+		   
+		  	<env key="PWD" value="${basedir}"/>
+	  	
+			<arg value="${basedir}/javascript/grapheditor/www/js/Init.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/deflate/pako.min.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/deflate/base64.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/jscolor/jscolor.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/sanitizer/sanitizer.min.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/EditorUi.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Editor.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Sidebar.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Graph.js" />
+			<arg value="${basedir}/javascript//grapheditor/www/js/Format.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Shapes.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Actions.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Menus.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Toolbar.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Dialogs.js" />
+		  		
+		  	<arg value="-o"/>
+		  	<arg value="${basedir}/nitoku.graph.min.1.0.1.js"/>
+		  	<arg value="-c"/>
+		  	<arg value="-m"/>
+		  	
+		  </exec>
+	</target>
+	
 </project>
