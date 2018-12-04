@@ -312,12 +312,15 @@ var mxNitokuIntegration = {
 				// Enables crisp rendering of rectangles in SVG
 				mxConstants.ENTITY_SEGMENT = 20;
 				
+				//mxEvent.disableContextMenu(document.body);
+				
 				graph = new mxGraph(container);
 				
 				graph.centerZoom = true;
 				graph.setTooltips(true);
 				graph.setEnabled(false);
 				graph.setHtmlLabels(true);
+				//graph.setPanning(true);
 				
 				// Overrides method to provide a cell label in the display
 				graph.convertValueToString = function(cell)
@@ -381,7 +384,7 @@ var mxNitokuIntegration = {
 						}
 						
 					};
-					
+				
 					// Changes fill color to red on mouseover
 					graph.addMouseListener(
 					{
@@ -711,6 +714,14 @@ var mxNitokuIntegration = {
 		calculateHeight : function()
 		{
 			var container = document.getElementById('mxgraph');
+			
+			//mxGraph will disable touchAction for 
+			//devices that support the Microsoft pointer events. But the problem
+			//is that setting touch events to none will disable scrolling on parent page
+			//for android devices, 
+			//after every redraw set the touch action to auto
+			container.style.touchAction = "auto";
+			
 			var height;
 			if(container.offsetHeight < 100){
 				height = 100;	
