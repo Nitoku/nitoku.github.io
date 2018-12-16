@@ -81,7 +81,46 @@ Actions.prototype.init = function()
 	}, null, 'sprite-print', Editor.ctrlKey + '+P');
 	
 	this.addAction('preview', function() { mxUtils.show(graph, null, 10, 10); });
-	this.addAction('close', function() { screenfull.exit(); });
+	this.addAction('close', function() {
+		
+		var readOnlyFlag;
+		var xmlDocumentOriginal = 
+						mxUtils.parseXml(editor.originalBlockXml);
+		var xmlMxGraphModelOriginal = 
+						xmlDocumentOriginal.getElementsByTagName('mxGraphModel');
+		
+		if(xmlMxGraphModelOriginal != null){
+			readOnlyFlagOriginal = 
+						xmlMxGraphModelOriginal[0].getAttribute('readOnly');
+		}
+
+		var xml = editor.getGraphXml();
+		editor.modified = false;
+		
+		var newXmlData = mxUtils.getPrettyXml(xml);
+		var xmlDocument = mxUtils.parseXml(newXmlData);
+		var xmlMxGraphModel = xmlDocument.getElementsByTagName('mxGraphModel');
+		if(xmlMxGraphModel != undefined && xmlMxGraphModel != null){
+			xmlMxGraphModel[0].setAttribute("readOnly", readOnlyFlagOriginal);
+			newXmlData = mxUtils.getPrettyXml(xmlMxGraphModel[0]);
+		}
+		
+		if(editor.originalBlockXml.trim()
+				.localeCompare(newXmlData.trim()) === 0){
+	
+			console.log("same text, not saving editors' data")
+			window.parent.postMessage(
+				"{'service':'@nitoku.public/blockApi','request':'close-dialog'}","https://www.nitoku.com");
+
+			return null;
+   
+		}
+
+		window.parent.postMessage(
+				"{'service':'@nitoku.public/blockApi'," +
+					"'request':{'save-and-close-dialog':'"+ newXmlData +"'}}","https://www.nitoku.com");
+		
+	});
 	
 	// Edit actions
 	this.addAction('undo', function() { ui.undo(); }, null, 'sprite-undo', Editor.ctrlKey + '+Z');

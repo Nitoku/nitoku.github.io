@@ -14,6 +14,13 @@ Editor = function(chromeless, themes, model, graph, editable)
 	this.undoManager = this.createUndoManager();
 	this.status = '';
 
+	/**
+	 * Stores the original xml text received when the editor is opened 
+	 * @returns
+	 */
+	this.originalBlockXml = "";
+
+
 	this.getOrCreateFilename = function()
 	{
 		return this.filename || mxResources.get('drawing', [Editor.pageCounter]) + '.xml';
