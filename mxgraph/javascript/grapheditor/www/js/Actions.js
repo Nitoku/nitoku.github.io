@@ -111,6 +111,7 @@ Actions.prototype.init = function()
 			console.log("same text, not saving editors' data")
 			window.parent.postMessage(
 				"{'service':'@nitoku.public/blockApi','request':'close-dialog'}","https://www.nitoku.com");
+			//	"{'service':'@nitoku.public/blockApi','request':'close-dialog'}","*");
 
 			return null;
    
@@ -118,7 +119,8 @@ Actions.prototype.init = function()
 
 		window.parent.postMessage(
 				"{'service':'@nitoku.public/blockApi'," +
-					"'request':{'save-and-close-dialog':'"+ newXmlData +"'}}","https://www.nitoku.com");
+				"'request':{'save-and-close-dialog':'"+ newXmlData +"'}}","https://www.nitoku.com");
+			//	"'request':{'save-and-close-dialog':'"+ newXmlData +"'}}","*");
 		
 	});
 	
@@ -128,9 +130,17 @@ Actions.prototype.init = function()
 	this.addAction('redo', function() { ui.redo(); }, 
 			null, 'sprite-redo', (!mxClient.IS_WIN) ? Editor.ctrlKey + '+Shift+Z' : Editor.ctrlKey + '+Y');
 	
-	this.addAction('cut', function() { mxClipboard.cut(graph); }, null, 'sprite-cut', Editor.ctrlKey + '+X');
+	this.addAction('cut', function() { 
+		
+		mxClipboard.cut(graph); 
 	
-	this.addAction('copy', function() { mxClipboard.copy(graph); }, null, 'sprite-copy', Editor.ctrlKey + '+C');
+	}, null, 'sprite-cut', Editor.ctrlKey + '+X');
+	
+	this.addAction('copy', function() { 
+		
+		mxClipboard.copy(graph); 
+	
+	}, null, 'sprite-copy', Editor.ctrlKey + '+C');
 	
 	this.addAction('paste', function()
 	{

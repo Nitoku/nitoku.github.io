@@ -207,19 +207,40 @@
 			<arg value="${basedir}/javascript/grapheditor/www/js/Editor.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/js/Sidebar.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/js/Graph.js" />
-			<arg value="${basedir}/javascript//grapheditor/www/js/Format.js" />
+			<arg value="${basedir}/javascript/grapheditor/www/js/Format.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/js/Shapes.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/js/Actions.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/js/Menus.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/js/Toolbar.js" />
 			<arg value="${basedir}/javascript/grapheditor/www/js/Dialogs.js" />
-		  		
+	  		<arg value="${basedir}/mxEditorNitokuIntegration.js" />
+	  	
 		  	<arg value="-o"/>
-		  	<arg value="${basedir}/nitoku.graph.min.1.0.2.js"/>
+		  	<arg value="${basedir}/nitoku.editor.min.1.0.3.js"/>
 		  	<arg value="-c"/>
 		  	<arg value="-m"/>
 		  	
-		  </exec>
+	  </exec>
+
+	  <exec executable="uglifyjs">
+			  	
+			  	<env key="PATH" 
+			  		 value="=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"/>
+			    
+			  	<env key="PWD"
+			  		 value="${basedir}"/>
+		  	    
+				<arg value="${basedir}/javascript/grapheditor/www/js/Graph.js" />
+				<arg value="${basedir}/javascript/grapheditor/www/js/Shapes.js" />
+				<arg value="${basedir}/mxGraphNitokuIntegration.js" />
+		  	
+			  	<arg value="-o"/>
+			  	<arg value="${basedir}/nitoku.graph.min.1.0.3.js"/>
+			  	<arg value="-c"/>
+			  	<arg value="-m"/>
+			  	
+	  </exec>
+
 	</target>
 	
 </project>

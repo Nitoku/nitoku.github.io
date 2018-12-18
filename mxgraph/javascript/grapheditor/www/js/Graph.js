@@ -1055,6 +1055,16 @@ Graph.prototype.editAfterInsert = false;
 Graph.prototype.builtInProperties = ['label', 'tooltip', 'placeholders', 'placeholder'];
 
 /**
+ * Contains the last XML that was pasted.
+ */
+Graph.prototype.lastPasteXml = null;
+
+/**
+ * Contains the number of times the last XML was pasted.
+ */
+Graph.prototype.pasteCounter = 0;
+
+/**
  * Installs child layout styles.
  */
 Graph.prototype.init = function(container)
@@ -6757,8 +6767,9 @@ if (typeof mxVertexHandler != 'undefined')
 		mxCellEditor.prototype.isContentEditing = function()
 		{
 			var state = this.graph.view.getState(this.editingCell);
-			
-			return state != null && state.style['html'] == 1;
+			var _isContentEditing = state != null && state.style['html'] == 1;
+			//console.log(_isContentEditing);
+			return _isContentEditing;
 		};
 	
 		/**

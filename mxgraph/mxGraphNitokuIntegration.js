@@ -1,5 +1,5 @@
 var mxNitokuEditorUi;
-var mxNitokuDevFlag = true;
+var mxNitokuDevFlag = false;
 var mxNitokuAppWindowInnerWidth;
 var mxNitokuReadOnly;
 var graph;
@@ -29,24 +29,45 @@ var mxGraphNitokuIntegration = {
 	   // Default resources are included in grapheditor resources
 	   mxLoadResources = false;
 	   
-	   const debounce = (func, wait, immediate) => {
-		    var timeout;
-		    return () => {
-		        const context = this, args = arguments;
-		        const later = function() {
-		            timeout = null;
-		            if (!immediate) func.apply(context, args);
-		        };
-		        const callNow = immediate && !timeout;
-		        clearTimeout(timeout);
-		        timeout = setTimeout(later, wait);
-		        if (callNow) func.apply(context, args);
-		    };
-	  };
+//	   const debounce = (func, wait, immediate) => {
+//		    var timeout;
+//		    return () => {
+//		        const context = this, args = arguments;
+//		        const later = function() {
+//		            timeout = null;
+//		            if (!immediate) func.apply(context, args);
+//		        };
+//		        const callNow = immediate && !timeout;
+//		        clearTimeout(timeout);
+//		        timeout = setTimeout(later, wait);
+//		        if (callNow) func.apply(context, args);
+//		    };
+//	  };
 		
-	  window.addEventListener('resize', 
-			  					debounce(() => mxGraphNitokuIntegration.zoomToFit(graph),
-			  					200, false), false);
+	// Returns a function, that, as long as it continues to be invoked, will not
+	// be triggered. The function will be called after it stops being called for
+	// N milliseconds. If `immediate` is passed, trigger the function on the
+	// leading edge, instead of the trailing.
+	   function debounce(func, wait, immediate) {
+			var timeout;
+			return function() {
+				var context = this, args = arguments;
+				var later = function() {
+					timeout = null;
+					if (!immediate) func.apply(context, args);
+				};
+				var callNow = immediate && !timeout;
+				clearTimeout(timeout);
+				timeout = setTimeout(later, wait);
+				if (callNow) func.apply(context, args);
+			};
+	  };
+	  
+	  var debouncedZoomToFitFn = debounce(function() {
+		  mxGraphNitokuIntegration.zoomToFit(graph);
+	  }, 200);
+	  
+	  window.addEventListener('resize', debouncedZoomToFitFn);
 
 	  window.addEventListener('message', function (e) {
 	          
@@ -153,10 +174,13 @@ var mxGraphNitokuIntegration = {
 				graph = new mxGraph(container);
 				
 				graph.centerZoom = true;
-				graph.setTooltips(true);
+				
+				/** don't show the text on hover **/
+				graph.setTooltips(false);
+				/** don't let user grab elements **/
 				graph.setEnabled(false);
+				/** enable labels **/
 				graph.setHtmlLabels(true);
-				//graph.setPanning(true);
 				
 				// Overrides method to provide a cell label in the display
 				graph.convertValueToString = function(cell)
@@ -591,9 +615,13 @@ var mxGraphNitokuIntegration = {
 				//		screenfull.request();
 				//	}
 				//}
-				window.parent.postMessage(
+				if(!mxNitokuDevFlag){
+					window.parent.postMessage(
 						"{'service':'@nitoku.public/blockApi','request':'show-dialog:full'}","https://www.nitoku.com");
-				
+				}else{
+					window.parent.postMessage(
+						"{'service':'@nitoku.public/blockApi','request':'show-dialog:full'}","*");
+				}
 				mxEvent.consume(evt);
 				
 			});

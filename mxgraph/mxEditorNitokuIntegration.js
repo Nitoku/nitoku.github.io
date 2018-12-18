@@ -3,6 +3,7 @@
 //var mxNitokuIntegrationTmpXml = "";
 
 var mxNitokuEditorUi;
+/* Note that the Actions.js (line 113 also needs to be changed to "https://www.nitoku.com") */
 var mxNitokuDevFlag = false;
 var mxNitokuReadOnly;
 var graph;
@@ -91,24 +92,9 @@ var mxEditorNitokuIntegration = {
 //			});
 //			
 //	   }
-	   
-	   const debounce = (func, wait, immediate) => {
-		    var timeout;
-		    return () => {
-		        const context = this, args = arguments;
-		        const later = function() {
-		            timeout = null;
-		            if (!immediate) func.apply(context, args);
-		        };
-		        const callNow = immediate && !timeout;
-		        clearTimeout(timeout);
-		        timeout = setTimeout(later, wait);
-		        if (callNow) func.apply(context, args);
-		    };
-	  };
 		
-	  window.addEventListener('resize', debounce(() => mxEditorNitokuIntegration.zoomToFit(graph),
-			  200, false), false);
+	  //window.addEventListener('resize', debounce(() => mxEditorNitokuIntegration.zoomToFit(graph),
+	  //		  200, false), false);
 
 	  window.addEventListener('message', function (e) {
 	          
@@ -169,17 +155,25 @@ var mxEditorNitokuIntegration = {
 		    				.localeCompare(newXmlData.trim()) === 0){
 
 		    			console.log("same text, not saving editors' data");
-		    			window.parent.postMessage(
+		    			if(!mxNitokuDevFlag){
+		    				window.parent.postMessage(
 			    				"{'service':'@nitoku.public/blockApi','request':'close-dialog'}","https://www.nitoku.com");
-		    				
+		    			}else{
+			    			window.parent.postMessage(
+				    			"{'service':'@nitoku.public/blockApi','request':'close-dialog'}","*");
+		    			}
 		    			return null;
 		       
 		    		}
-
-		    		window.parent.postMessage(
+		    		if(!mxNitokuDevFlag){
+		    			window.parent.postMessage(
 		    				"{'service':'@nitoku.public/blockApi'," +
 		    					"'request':{'save-and-close-dialog':'"+ newXmlData +"'}}","https://www.nitoku.com");
-
+		    		}else{
+		    			window.parent.postMessage(
+			    				"{'service':'@nitoku.public/blockApi'," +
+			    					"'request':{'save-and-close-dialog':'"+ newXmlData +"'}}","*");
+		    		}
 		        	
 		        }
 		        
