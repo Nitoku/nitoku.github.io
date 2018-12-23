@@ -1273,11 +1273,12 @@ ExportDialog.exportFile = function(editorUi, name, format, bg, s, b)
 		if (param.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
 		{
 			editorUi.hideDialog();
-			var req = new mxXmlRequest(EXPORT_URL, 'format=' + format +
-				'&filename=' + encodeURIComponent(name) +
-				'&bg=' + ((bg != null) ? bg : 'none') +
-				'&w=' + w + '&h=' + h + '&' + param);
-			req.simulate(document, '_blank');
+//			var req = new mxXmlRequest(EXPORT_URL, 'format=' + format +
+//				'&filename=' + encodeURIComponent(name) +
+//				'&bg=' + ((bg != null) ? bg : 'none') +
+//				'&w=' + w + '&h=' + h + '&' + param);
+//			req.simulate(document, '_blank');
+			
 		}
 		else
 		{

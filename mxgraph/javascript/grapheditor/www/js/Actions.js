@@ -65,7 +65,12 @@ Actions.prototype.init = function()
 //	}).isEnabled = isGraphEnabled;
 	//this.addAction('save', function() { ui.saveFile(false); }, null, null, Editor.ctrlKey + '+S').isEnabled = isGraphEnabled;
 	//this.addAction('saveAs...', function() { ui.saveFile(true); }, null, null, Editor.ctrlKey + '+Shift+S').isEnabled = isGraphEnabled;
-	//this.addAction('export...', function() { ui.showDialog(new ExportDialog(ui).container, 300, 230, true, true); });
+	
+	//maybe we could export with mxSvgCanvas2D
+	//this.addAction('export...', function() { 
+	//	ui.showDialog(new ExportDialog(ui).container, 300, 230, true, true); 
+	//});
+	
 	this.addAction('editDiagram...', function()
 	{
 		var dlg = new EditDiagramDialog(ui);

@@ -473,6 +473,7 @@ Menus.prototype.init = function()
 	{
 		this.addMenuItems(
 				menu, 
+				//['pageSetup', '-', 'export', '-','close'], parent);
 				['pageSetup', '-','close'], parent);
 		
 	})));
