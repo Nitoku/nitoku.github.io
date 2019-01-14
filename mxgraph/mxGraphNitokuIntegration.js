@@ -583,7 +583,7 @@ var mxGraphNitokuIntegration = {
 			container.style.touchAction = "auto";
 			
 			var height;
-			if(container.offsetHeight < 100){
+			if(container.offsetHeight + 20 < 100){
 				height = 100;	
 			}else{
 				height = container.offsetHeight + 20;
