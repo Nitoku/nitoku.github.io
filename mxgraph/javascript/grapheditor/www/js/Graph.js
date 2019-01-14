@@ -1447,6 +1447,8 @@ Graph.prototype.isLightboxView = function()
  */
 Graph.prototype.labelLinkClicked = function(state, elt, evt)
 {
+	//console.log("open link 0");
+	
 	var href = elt.getAttribute('href');
 	
 	if (href != null && !this.isCustomLink(href) && (mxEvent.isLeftMouseButton(evt) &&
@@ -1468,8 +1470,8 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 Graph.prototype.openLink = function(href, target, allowOpener)
 {
 	var result = window;
-	
-	// Workaround for blocking in same iframe
+
+	//Workaround for blocking in same iframe
 	if (target == '_self' && window != window.top)
 	{
 		window.location.href = href;
@@ -5651,7 +5653,7 @@ if (typeof mxVertexHandler != 'undefined')
 						{
 							links[i].setAttribute('rel', 'nofollow noopener noreferrer');
 							links[i].setAttribute('href', href);
-							
+							//console.log("href: " + href);
 							if (beforeClick != null)
 			    			{
 								mxEvent.addGestureListeners(links[i], null, null, beforeClick);

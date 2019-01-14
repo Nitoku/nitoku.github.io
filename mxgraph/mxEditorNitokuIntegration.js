@@ -31,72 +31,7 @@ var mxEditorNitokuIntegration = {
 	   // Default resources are included in grapheditor resources
 	   mxLoadResources = false;
 
-//	   if (screenfull.enabled) {
-//		   
-//			screenfull.on('change', () => {
-//				
-//				if(!screenfull.isFullscreen){
-//					
-//					//mxNitokuIntegrationTmpXml = 
-//					//		mxNitokuEditorUi.editor.getGraphXml().outerHTML;
-//					
-//					var xml = mxNitokuEditorUi.editor.getGraphXml();
-//					mxNitokuIntegrationTmpXml = mxUtils.getPrettyXml(xml);
-//										
-//					if(mxNitokuIntegrationXml.trim()
-//								.localeCompare(mxNitokuIntegrationTmpXml.trim()) === 0){
-//						
-//						//make sure that the editor is not blocking reload
-//						mxNitokuEditorUi.editor.modified = false;
-//						
-//					}else{
-//
-//						if(mxNitokuReadOnly != null){
-//							
-//							var xmlDocument = mxUtils.parseXml(mxNitokuIntegrationTmpXml);
-//							var xmlMxGraphModel = xmlDocument.getElementsByTagName('mxGraphModel');
-//							if(xmlMxGraphModel != null){
-//								xmlMxGraphModel[0].setAttribute("readOnly", mxNitokuReadOnly);
-//								mxNitokuIntegrationTmpXml = mxUtils.getPrettyXml(xmlMxGraphModel[0]);
-//							}
-//							
-//							//console.log(xmlDocument);
-//						}
-//
-//						//mxNitokuIntegrationXml = 
-//						//	mxNitokuEditorUi.editor.getGraphXml().outerHTML;
-//						if(!mxNitokuDevFlag){
-//							parent.postMessage(
-//								    "{'service':'@nitoku.public/blockApi','request':'set-data : "+ 
-//								    mxNitokuIntegrationTmpXml+"'}",
-//								    "https://www.nitoku.com"
-//							);
-//						}else{
-//							parent.postMessage(
-//								    "{'service':'@nitoku.public/blockApi','request':'set-data : "+ 
-//								    mxNitokuIntegrationTmpXml+"'}",
-//								    "*"
-//							);
-//						}
-//
-//						//make sure that the editor is not blocking reload
-//						mxNitokuEditorUi.editor.modified = false;
-//
-//						
-//					}
-//					
-//					this.initGraph();
-//					
-//				}
-//				
-//			});
-//			
-//	   }
-		
-	  //window.addEventListener('resize', debounce(() => mxEditorNitokuIntegration.zoomToFit(graph),
-	  //		  200, false), false);
-
-	  window.addEventListener('message', function (e) {
+	   window.addEventListener('message', function (e) {
 	          
 		    if(!mxNitokuDevFlag){
 			    if (e.origin !== ("https://www.nitoku.com")){

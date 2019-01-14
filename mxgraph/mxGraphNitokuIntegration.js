@@ -9,7 +9,37 @@ var mxGraphNitokuIntegration = {
 	
 	init: function()
 	{
-	   	 
+
+      //capture click on links
+ 	  //find first parent with tagName [tagname]
+ 	  function findParent(tagname,el){
+ 		  while (el){
+ 		    if ((el.nodeName || el.tagName).toLowerCase()===tagname.toLowerCase()){
+ 		      return el;
+ 		    }
+ 		    el = el.parentNode;
+ 		  }
+ 		  return null;
+ 	  }
+ 	  
+	  document.body.onclick = function(e){
+		   e = e || event;
+		   var link = findParent('a',e.target || e.srcElement);
+		   if (link){
+			   
+			  if(link.href.startsWith("https://www.nitoku.com") || 
+					  link.href.startsWith("http://www.nitoku.com") ){
+				  window.parent.postMessage(
+							"{'service':'@nitoku.public/blockApi','request':'open-link:"
+							+ link.href + "'}","https://www.nitoku.com");
+						
+			  }else{
+				  window.open(link.href, "");
+			  }
+			  return false;
+		   }
+	   }
+	   
 	   mxNitokuAppWindowInnerWidth = document.body.offsetWidth;
 	   
 	   if(!mxNitokuDevFlag){
@@ -28,22 +58,7 @@ var mxGraphNitokuIntegration = {
 	   
 	   // Default resources are included in grapheditor resources
 	   mxLoadResources = false;
-	   
-//	   const debounce = (func, wait, immediate) => {
-//		    var timeout;
-//		    return () => {
-//		        const context = this, args = arguments;
-//		        const later = function() {
-//		            timeout = null;
-//		            if (!immediate) func.apply(context, args);
-//		        };
-//		        const callNow = immediate && !timeout;
-//		        clearTimeout(timeout);
-//		        timeout = setTimeout(later, wait);
-//		        if (callNow) func.apply(context, args);
-//		    };
-//	  };
-		
+	
 	// Returns a function, that, as long as it continues to be invoked, will not
 	// be triggered. The function will be called after it stops being called for
 	// N milliseconds. If `immediate` is passed, trigger the function on the
@@ -136,10 +151,6 @@ var mxGraphNitokuIntegration = {
 			mxUtils.error('Browser is not supported!', 200, false);
 			
 			return;
-			
-//		}else if(!screenfull.enabled || screenfull.isFullscreen){
-//			
-//			return;
 		
 		}else if(blockXml === ""){
 			
@@ -193,21 +204,6 @@ var mxGraphNitokuIntegration = {
 							var link = cell.getAttribute('link', '');
 							var label = cell.getAttribute('label', '');
 							
-//							//create cell overlay
-//							var overlays = graph.getCellOverlays(cell);
-//								
-//							if (overlays == null)
-//							{
-//								// Creates a new overlay with an image and a tooltip
-//								var overlay = new mxCellOverlay(
-//										new mxImage('http://localhost:8080/src/images/point.gif', 16, 16),label);
-//								overlay.cursor = "pointer";
-//									// Sets the overlay for the cell in the graph
-//								graph.addCellOverlay(cell, overlay);
-//								
-//							}
-
-							//console.log(link);
 							if (label != null && label.length > 0 )
 							{
 								return label;
@@ -245,7 +241,6 @@ var mxGraphNitokuIntegration = {
 						
 					};
 				
-					// Changes fill color to red on mouseover
 					graph.addMouseListener(
 					{
 					    currentState: null,
@@ -293,9 +288,16 @@ var mxGraphNitokuIntegration = {
 							var cell = me.getCell(); 
 							
 							if(cell != null){
-								//console.log(cell);
+								
 							    if (mxUtils.isNode(cell.value))
 								{
+							    
+							    	//console.log(cell.value);
+							    	//var href = cell.getAttribute('href', '');
+							    	//if(href != null){
+							    	//	console.log('href : ' + href);
+							    	//}
+							    	
 									if (cell.value.nodeName.toLowerCase() == 'userobject')
 									{
 										//console.log(cell);
@@ -314,9 +316,7 @@ var mxGraphNitokuIntegration = {
 											window.open(link, label);
 											
 										}
-										
-										//console.log(link);
-										//console.log(label);
+								
 									}
 								}
 							}
