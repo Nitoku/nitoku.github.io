@@ -216,7 +216,7 @@
 	  		<arg value="${basedir}/mxEditorNitokuIntegration.js" />
 	  	
 		  	<arg value="-o"/>
-		  	<arg value="${basedir}/nitoku.editor.min.1.0.3.js"/>
+		  	<arg value="${basedir}/nitoku.editor.min.1.0.6.js"/>
 		  	<arg value="-c"/>
 		  	<arg value="-m"/>
 		  	
@@ -235,7 +235,7 @@
 				<arg value="${basedir}/mxGraphNitokuIntegration.js" />
 		  	
 			  	<arg value="-o"/>
-			  	<arg value="${basedir}/nitoku.graph.min.1.0.4.js"/>
+			  	<arg value="${basedir}/nitoku.graph.min.1.0.9.js"/>
 			  	<arg value="-c"/>
 			  	<arg value="-m"/>
 			  	

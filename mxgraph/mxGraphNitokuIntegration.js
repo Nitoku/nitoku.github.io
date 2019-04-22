@@ -3,7 +3,7 @@ var mxNitokuDevFlag = false;
 var mxNitokuAppWindowInnerWidth;
 var mxNitokuReadOnly;
 var graph;
-var containerWidth = 0;
+var originalContainerWidth = 0;
 
 var mxGraphNitokuIntegration = {
 	
@@ -79,7 +79,15 @@ var mxGraphNitokuIntegration = {
 	  };
 	  
 	  var debouncedZoomToFitFn = debounce(function() {
-		  mxGraphNitokuIntegration.zoomToFit(graph);
+		  if(!mxNitokuDevFlag){
+ 	      window.parent.postMessage(
+					   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
+					   "https://www.nitoku.com");
+		  }else{
+	 	      window.parent.postMessage(
+					   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
+					   "*");			  
+		  }
 	  }, 200);
 	  
 	  window.addEventListener('resize', debouncedZoomToFitFn);
@@ -116,7 +124,15 @@ var mxGraphNitokuIntegration = {
 
 		        if(jdata.response.id === "get-inner-width"){
 		            
-		        	mxNitokuAppWindowInnerWidth = jdata.response.data;
+		        	// console.log("ipad bug from parent : mxNitokuAppWindowInnerWidth :" + mxNitokuAppWindowInnerWidth);
+		        	mxNitokuAppWindowInnerWidth = parseInt(jdata.response.data,10);
+		        	
+		        	// responses of get-inner-width will trigger a zoom to fit
+		        	// this is needed because ios expand the frame beyond 100% width, see below
+		        	// https://stackoverflow.com/questions/49749442/workaround-to-ios-11-webkit-iframe-bugs 
+		            // https://bugs.webkit.org/show_bug.cgi?id=155198
+		        	// therefore we need to get the width to calculate the zoom from nitoku app 
+		        	mxGraphNitokuIntegration.zoomToFit(graph);
 		        	
 		        }
 		        
@@ -498,13 +514,22 @@ var mxGraphNitokuIntegration = {
 				
 			}
 
-			containerWidth = parseInt(container.style.width, 10);
+			originalContainerWidth = parseInt(container.style.width, 10);
 			
 			//If the width is larger than the available width we need to zoom in by the required
 			//factor and then request the height to the blockApi service
-			this.zoomToFit(graph);
+			//console.log("ipad bug : init function before zoom to fit");
 			
-			//request new height for the block
+			//The reponse to inner width will trigger the execution of the zoomtoFit method  
+			if(!mxNitokuDevFlag){
+		 	      window.parent.postMessage(
+							   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
+							   "https://www.nitoku.com");
+			}else{
+			     window.parent.postMessage(
+							   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
+							   "*");			  
+			}
 			
 		  }
 		
@@ -517,6 +542,7 @@ var mxGraphNitokuIntegration = {
 		zoomToFit : function(graph)
 		{
 			//console.log("zoom to fit");
+			//console.log("ipad bug : zoom to fit 1");
 			
 			if(graph === null || graph === undefined){
 				//console.log("no graph");
@@ -531,35 +557,44 @@ var mxGraphNitokuIntegration = {
 				
 			}
 			
-			var bodyWidth = document.body.offsetWidth;
-			var _containerWidth = parseInt(container.style.width, 10);
+			var bodyWidth = mxNitokuAppWindowInnerWidth;
+			var newContainerWidth = parseInt(container.style.width, 10);
 			
-			
-			if(_containerWidth > bodyWidth + 10){
+			//console.log("ipad bug : bodyWidth : " + bodyWidth);
+			//console.log("ipad bug : _containerWidth : " + _containerWidth);
+		       
+			if(newContainerWidth + 50 > bodyWidth){
 				
-				graph.zoom(bodyWidth/(_containerWidth + 10), false);
+				graph.zoom((bodyWidth - 50)/(newContainerWidth + 50), false);
 				//console.log("shrink ");
+				//console.log("ipad bug : shrink : " + bodyWidth/(_containerWidth + 10));
 				
-			}else if(containerWidth < bodyWidth){
+			}else if( originalContainerWidth + 50 < bodyWidth){
 				
 				//console.log("reset ");
+				//console.log("ipad bug : reset ");
 				graph.zoomActual();
+
+			}else if (newContainerWidth + 50 < bodyWidth ){
 				
-			}else if (_containerWidth + 10 < bodyWidth ){
-				
-				graph.zoom(bodyWidth/(_containerWidth + 10), false);
+				graph.zoom((bodyWidth - 50)/(newContainerWidth + 50), false);
 				//console.log("grow ");
+				//console.log("ipad bug : grow : " + _containerWidth + 10);
+
 				
 			}else{
 
-				//console.log("container width : " + containerWidth);
-				//console.log("body width : " + document.body.offsetWidth);
-				//console.log("_containerWidth : " + _containerWidth);
+				graph.zoom((bodyWidth - 50)/(newContainerWidth + 50), false);
+				//console.log("ipad bug else : do nothing ");
+				//console.log("ipad bug else : container width : " + containerWidth);
+				//console.log("ipad bug else : body width : " + document.body.offsetWidth);
+				//console.log("ipad bug else : _containerWidth : " + _containerWidth);
 
 			}
 
 			var height = this.calculateHeight();
 			
+			//The reponse to inner width will trigger the execution of the zoomtoFit method
 			if(!mxNitokuDevFlag){
 				window.parent.postMessage(
 						"{'service':'@nitoku.public/blockApi','request':{'set-height':'"
@@ -569,6 +604,7 @@ var mxGraphNitokuIntegration = {
 						"{'service':'@nitoku.public/blockApi','request':{'set-height':'"
 							+ height + "'}}","*");
 			}
+			
 		},
 		
 		calculateHeight : function()
@@ -609,12 +645,6 @@ var mxGraphNitokuIntegration = {
 			
 			mxEvent.addListener(btn, 'click', function(evt)
 			{
-				//if (screenfull.enabled) {
-			    //	if(!screenfull.isFullscreen){
-				//		mxNitokuIntegration.initEditor();
-				//		screenfull.request();
-				//	}
-				//}
 				if(!mxNitokuDevFlag){
 					window.parent.postMessage(
 						"{'service':'@nitoku.public/blockApi','request':'show-dialog:full'}","https://www.nitoku.com");

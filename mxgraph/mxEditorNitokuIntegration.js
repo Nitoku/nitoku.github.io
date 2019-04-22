@@ -7,7 +7,7 @@ var mxNitokuEditorUi;
 var mxNitokuDevFlag = false;
 var mxNitokuReadOnly;
 var graph;
-var containerWidth = 0;
+
 
 var mxEditorNitokuIntegration = {
 	
