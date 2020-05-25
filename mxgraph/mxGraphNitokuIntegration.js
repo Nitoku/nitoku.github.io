@@ -1,5 +1,4 @@
 var mxNitokuEditorUi;
-var mxNitokuDevFlag = false;
 var mxNitokuAppWindowInnerWidth;
 var mxNitokuReadOnly;
 var graph;
@@ -26,38 +25,33 @@ var mxGraphNitokuIntegration = {
 		   e = e || event;
 		   var link = findParent('a',e.target || e.srcElement);
 		   if (link){
-			   
-			  if(link.href.startsWith("https://www.nitoku.com") || 
-					  link.href.startsWith("http://www.nitoku.com") ){
-				  window.parent.postMessage(
-							"{'service':'@nitoku.public/blockApi','request':'open-link:"
-							+ link.href + "'}","https://www.nitoku.com");
-						
-			  }else{
-				  window.open(link.href, "");
-			  }
+			  var postMsg = {};
+			  postMsg.channel = '@nitoku.public/blockApi';
+			  postMsg.version = '1.0';
+			  postMsg.service = 'open-link';
+			  postMsg.message = { 'href' : link.href };
+			  window.parent.postMessage(postMsg,"https://www.nitoku.com");   
 			  return false;
 		   }
 	   }
 	   
 	   mxNitokuAppWindowInnerWidth = document.body.offsetWidth;
 	   
-	   if(!mxNitokuDevFlag){
-	       window.parent.postMessage(
-				   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}","https://www.nitoku.com");
-		   window.parent.postMessage(
-				   "{'service':'@nitoku.public/blockApi','request':'get-data'}","https://www.nitoku.com");
-
-	   }else{
-	       window.parent.postMessage(
-				   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}","*");
-		   window.parent.postMessage(
-				   "{'service':'@nitoku.public/blockApi','request':'get-data'}","*");
-
-	   }
 	   
+	   var postMsg = {};
+       postMsg.channel = '@nitoku.public/blockApi';
+       postMsg.version = '1.0';
+       postMsg.service = 'get-inner-width';
+       parent.postMessage( postMsg, "https://www.nitoku.com" );
+
+       var postMsg = {};
+       postMsg.channel = '@nitoku.public/blockApi';
+       postMsg.version = '1.0';
+       postMsg.service = 'get-data';
+       parent.postMessage( postMsg, "https://www.nitoku.com" );
+
 	   // Default resources are included in grapheditor resources
-	   mxLoadResources = false;
+	   mxLoadResources = false;block A
 	
 	// Returns a function, that, as long as it continues to be invoked, will not
 	// be triggered. The function will be called after it stops being called for
@@ -79,53 +73,46 @@ var mxGraphNitokuIntegration = {
 	  };
 	  
 	  var debouncedZoomToFitFn = debounce(function() {
-		  if(!mxNitokuDevFlag){
- 	      window.parent.postMessage(
-					   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
-					   "https://www.nitoku.com");
-		  }else{
-	 	      window.parent.postMessage(
-					   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
-					   "*");			  
-		  }
+	       
+		  var postMsg = {};
+	      postMsg.channel = '@nitoku.public/blockApi';
+	      postMsg.version = '1.0';
+	      postMsg.service = 'get-inner-width';
+	      parent.postMessage( postMsg, "https://www.nitoku.com" );
+	       
 	  }, 200);
 	  
 	  window.addEventListener('resize', debouncedZoomToFitFn);
 
 	  window.addEventListener('message', function (e) {
 	          
-		    if(!mxNitokuDevFlag){
-			    if (e.origin !== ("https://www.nitoku.com")){
-			        console.warn("error on frame origin");
-			        return;
-			    }
+		    if (e.origin !== ("https://www.nitoku.com")){
+		        console.warn("error on frame origin");
+		        return;
 		    }
 			        
 		    if(e.data != null) {
-			    	
-	    	var jdata;
-	        try {
-		           	jdata = JSON.parse(e.data);
-		  		} catch (err) {
-		            return;
-		        }
-		  		
-		        if(jdata.service !== "@nitoku.public/blockApi"){
-		          	return;
-		        }
+			    
+	            if(e.data.channel !== "@nitoku.public/blockApi"){
+	      			return;
+	    		}
 	
-		        if(jdata.response.id === "get-data" || 
-		        		jdata.response.id === "data-update"){
-
-		        	var blockXml = jdata.response.data;
+		        if(e.data.service === "get-data" || 
+		        		e.data.service === "data-update"){
+		        	var blockXml = e.data.response.data;
 	        		mxGraphNitokuIntegration.initGraph(blockXml);
-		        	
 		        }
+		        
+		        if(e.data.service === "can-edit-page"){
+		        	if(e.data.response.data === "true"){
+		        		mxGraphNitokuIntegration.addEditButton();
+		        	}
+		        }		        
 
-		        if(jdata.response.id === "get-inner-width"){
+		        if(e.data.service === "get-inner-width"){
 		            
 		        	// console.log("ipad bug from parent : mxNitokuAppWindowInnerWidth :" + mxNitokuAppWindowInnerWidth);
-		        	mxNitokuAppWindowInnerWidth = parseInt(jdata.response.data,10);
+		        	mxNitokuAppWindowInnerWidth = parseInt(e.data.response.data,10);
 		        	
 		        	// responses of get-inner-width will trigger a zoom to fit
 		        	// this is needed because ios expand the frame beyond 100% width, see below
@@ -136,18 +123,14 @@ var mxGraphNitokuIntegration = {
 		        	
 		        }
 		        
-		        if(jdata.response.id === "set-data" && 
-		        		jdata.response.data === "accepted"){
+		        if(e.data.service === "set-data" && 
+		        		e.data.service === "accepted"){
 		        
-		     	   if(!mxNitokuDevFlag){
-		    		   window.parent.postMessage(
-		    				   "{'service':'@nitoku.public/blockApi','request':'get-data'}","https://www.nitoku.com");
-
-		    	   }else{
-		    		   window.parent.postMessage(
-		    				   "{'service':'@nitoku.public/blockApi','request':'get-data'}","*");
-
-		    	   }
+		  		  var postMsg = {};
+			      postMsg.channel = '@nitoku.public/blockApi';
+			      postMsg.version = '1.0';
+			      postMsg.service = 'get-data';
+			      parent.postMessage( postMsg, "https://www.nitoku.com" );
 
 		        }
 
@@ -173,6 +156,12 @@ var mxGraphNitokuIntegration = {
 			console.log("no graph block data available");
 			window.document.body.innerHTML = "<div id='mxgraph'></div>";	 
 			
+		    var postMsg = {};
+		    postMsg.channel = '@nitoku.public/blockApi';
+		    postMsg.version = '1.0';
+		    postMsg.service = 'can-edit-page';
+		    parent.postMessage( postMsg, "https://www.nitoku.com" );
+		       
 		}else{
 			
 			window.document.body.innerHTML = "<div id='mxgraph'></div>";
@@ -320,18 +309,12 @@ var mxGraphNitokuIntegration = {
 										var link = cell.getAttribute('link', '');
 										var label = cell.getAttribute('label', '');
 										
-										if(link.startsWith("https://www.nitoku.com") || 
-											link.startsWith("http://www.nitoku.com") ){
-											
-											window.parent.postMessage(
-												"{'service':'@nitoku.public/blockApi','request':'open-link:"
-												+ link + "'}","https://www.nitoku.com");
-											
-										}else{
-											
-											window.open(link, label);
-											
-										}
+										var postMsg = {};
+									    postMsg.channel = '@nitoku.public/blockApi';
+										postMsg.version = '1.0';
+										postMsg.service = 'open-link';
+										postMsg.message = { 'href' : link };
+										window.parent.postMessage(postMsg,"https://www.nitoku.com");   
 								
 									}
 								}
@@ -512,6 +495,12 @@ var mxGraphNitokuIntegration = {
 				decoder.decode(node, model);
 				graph.container.style.backgroundColor = model.background;
 				
+			    var postMsg = {};
+			    postMsg.channel = '@nitoku.public/blockApi';
+			    postMsg.version = '1.0';
+			    postMsg.service = 'can-edit-page';
+			    parent.postMessage( postMsg, "https://www.nitoku.com" );
+				
 			}
 
 			originalContainerWidth = parseInt(container.style.width, 10);
@@ -520,22 +509,16 @@ var mxGraphNitokuIntegration = {
 			//factor and then request the height to the blockApi service
 			//console.log("ipad bug : init function before zoom to fit");
 			
-			//The reponse to inner width will trigger the execution of the zoomtoFit method  
-			if(!mxNitokuDevFlag){
-		 	      window.parent.postMessage(
-							   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
-							   "https://www.nitoku.com");
-			}else{
-			     window.parent.postMessage(
-							   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}",
-							   "*");			  
-			}
+			//The reponse to inner width will trigger the execution of the zoomtoFit method
+			var postMsg = {};
+		    postMsg.channel = '@nitoku.public/blockApi';
+			postMsg.version = '1.0';
+			postMsg.service = 'get-inner-width';
+			window.parent.postMessage(postMsg,"https://www.nitoku.com");   
 			
 		  }
 		
-		  if(mxNitokuReadOnly !== "true"){
-			  mxGraphNitokuIntegration.addEditButton();
-		  }
+		  
 		  
 		},
 		
@@ -595,15 +578,12 @@ var mxGraphNitokuIntegration = {
 			var height = this.calculateHeight();
 			
 			//The reponse to inner width will trigger the execution of the zoomtoFit method
-			if(!mxNitokuDevFlag){
-				window.parent.postMessage(
-						"{'service':'@nitoku.public/blockApi','request':{'set-height':'"
-					   	+ height + "'}}","https://www.nitoku.com");
-			}else{
-				window.parent.postMessage(
-						"{'service':'@nitoku.public/blockApi','request':{'set-height':'"
-							+ height + "'}}","*");
-			}
+			var postMsg = {};
+			postMsg.channel = '@nitoku.public/blockApi';
+			postMsg.version = '1.0';
+			postMsg.service = 'set-height';
+			postMsg.message = { 'height' : height };
+			parent.postMessage( postMsg, "https://www.nitoku.com" ); 
 			
 		},
 		
@@ -645,13 +625,11 @@ var mxGraphNitokuIntegration = {
 			
 			mxEvent.addListener(btn, 'click', function(evt)
 			{
-				if(!mxNitokuDevFlag){
-					window.parent.postMessage(
-						"{'service':'@nitoku.public/blockApi','request':'show-dialog:full'}","https://www.nitoku.com");
-				}else{
-					window.parent.postMessage(
-						"{'service':'@nitoku.public/blockApi','request':'show-dialog:full'}","*");
-				}
+				var postMsg = {};
+				postMsg.channel = '@nitoku.public/blockApi';
+				postMsg.version = '1.0';
+				postMsg.service = 'show-dialog';
+				parent.postMessage( postMsg, "https://www.nitoku.com");
 				mxEvent.consume(evt);
 				
 			});
@@ -673,5 +651,6 @@ var mxGraphNitokuIntegration = {
 			container.parentNode.appendChild(editButtons);
 			
 		}
+		
 	
 };

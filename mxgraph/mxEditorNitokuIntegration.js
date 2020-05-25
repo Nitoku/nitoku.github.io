@@ -3,8 +3,6 @@
 //var mxNitokuIntegrationTmpXml = "";
 
 var mxNitokuEditorUi;
-/* Note that the Actions.js (line 113 also needs to be changed to "https://www.nitoku.com") */
-var mxNitokuDevFlag = false;
 var mxNitokuReadOnly;
 var graph;
 
@@ -13,56 +11,46 @@ var mxEditorNitokuIntegration = {
 	
 	init: function()
 	{
-	
-	   if(!mxNitokuDevFlag){
-	       window.parent.postMessage(
-				   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}","https://www.nitoku.com");
-		   window.parent.postMessage(
-				   "{'service':'@nitoku.public/blockApi','request':'get-data'}","https://www.nitoku.com");
 
-	   }else{
-	       window.parent.postMessage(
-				   "{'service':'@nitoku.public/blockApi','request':'get-inner-width'}","*");
-		   window.parent.postMessage(
-				   "{'service':'@nitoku.public/blockApi','request':'get-data'}","*");
-
-	   }
-	   
+       var postMsg = {};
+       postMsg.channel = '@nitoku.public/blockApi';
+       postMsg.version = '1.0';
+       postMsg.service = 'get-inner-width';
+       parent.postMessage( postMsg, "https://www.nitoku.com" );
+       
+       var postMsg = {};
+       postMsg.channel = '@nitoku.public/blockApi';
+       postMsg.version = '1.0';
+       postMsg.service = 'get-data';
+       parent.postMessage( postMsg, "https://www.nitoku.com" );
+	   	   
 	   // Default resources are included in grapheditor resources
 	   mxLoadResources = false;
 
 	   window.addEventListener('message', function (e) {
 	          
-		    if(!mxNitokuDevFlag){
-			    if (e.origin !== ("https://www.nitoku.com")){
-			        console.warn("error on frame origin");
-			        return;
-			    }
-		    }
-			        
+		    
+			if (e.origin !== ("https://www.nitoku.com")){
+			    console.warn("error on frame origin");
+			    return;
+			}
+		            
 		    if(e.data != null) {
 			    	
-	    	var jdata;
-	        try {
-		           	jdata = JSON.parse(e.data);
-		  		} catch (err) {
+		        if(e.data.channel !== "@nitoku.public/blockApi"){
 		            return;
 		        }
 		  		
-		        if(jdata.service !== "@nitoku.public/blockApi"){
-		          	return;
-		        }
-	
-		        if(jdata.response.id === "get-data" || 
-		        		jdata.response.id === "data-update"){
+		        if(e.data.service === "get-data" || 
+		        		e.data.service === "data-update"){
 
-		        	var blockXml = jdata.response.data;
+		        	var blockXml = e.data.response.data;
 
 		        	mxEditorNitokuIntegration.initEditor(blockXml);      		
 		        	
 		        }
 
-		        if(jdata.response.id === "close-dialog-event"){
+		        if(e.data.service === "close-dialog-event"){
 		        
 		        	var readOnlyFlag;
 		    		var xmlDocumentOriginal = 
@@ -89,27 +77,25 @@ var mxEditorNitokuIntegration = {
 		    		if(mxNitokuEditorUi.editor.originalBlockXml.trim()
 		    				.localeCompare(newXmlData.trim()) === 0){
 
-		    			console.log("same text, not saving editors' data");
-		    			if(!mxNitokuDevFlag){
-		    				window.parent.postMessage(
-			    				"{'service':'@nitoku.public/blockApi','request':'close-dialog'}","https://www.nitoku.com");
-		    			}else{
-			    			window.parent.postMessage(
-				    			"{'service':'@nitoku.public/blockApi','request':'close-dialog'}","*");
-		    			}
+		    			console.log("same text, not saving editor's data");
+		    			
+	    		        var postMsg = {};
+	    		        postMsg.channel = '@nitoku.public/blockApi';
+		    		    postMsg.version = '1.0';
+		    		    postMsg.service = 'close-dialog';
+		    		    parent.postMessage( postMsg, "https://www.nitoku.com" );
+		    			
 		    			return null;
 		       
 		    		}
-		    		if(!mxNitokuDevFlag){
-		    			window.parent.postMessage(
-		    				"{'service':'@nitoku.public/blockApi'," +
-		    					"'request':{'save-and-close-dialog':'"+ newXmlData +"'}}","https://www.nitoku.com");
-		    		}else{
-		    			window.parent.postMessage(
-			    				"{'service':'@nitoku.public/blockApi'," +
-			    					"'request':{'save-and-close-dialog':'"+ newXmlData +"'}}","*");
-		    		}
-		        	
+		    		
+		    		var postMsg = {};
+		    		postMsg.channel = '@nitoku.public/blockApi';
+		    		postMsg.version = '1.0';
+		    		postMsg.service = 'save-and-close-dialog';
+		    		postMsg.message = { 'data' : newXmlData };
+		    		parent.postMessage( postMsg, "https://www.nitoku.com" ); 
+		    		
 		        }
 		        
 		  	}
